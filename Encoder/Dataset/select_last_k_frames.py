@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import os
 
-from json_utils import fill_annotation
+from utils.json_utils import fill_annotation
 
 
 class SelectLastKFrames:

@@ -13,11 +13,11 @@ import torchvision
 import os
 
 from select_last_k_frames import SelectLastKFrames
-from original_annotations_parser import JsonParser
-from json_utils import save_json
-from utils import draw_segmentation_map, get_outputs, get_filenames, filter_results
+from utils.original_annotations_parser import JsonParser
+from utils.json_utils import save_json
+from utils.utils import draw_segmentation_map, get_outputs, get_filenames, filter_results
 from torchvision.transforms import transforms as transforms
-from coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
+from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 
 
 def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_to_dest):
