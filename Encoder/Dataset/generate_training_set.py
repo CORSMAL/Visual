@@ -152,7 +152,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(prog='generate_training_set',
-                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
+                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR> --path_to_annotations <PATH_TO_ANN> --path_to_dest_dir <PATH_TO_DEST_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
                         default=".../train/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
