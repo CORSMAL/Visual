@@ -156,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--path_to_video_dir', type=str,
                         default=".../train/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
+                        default=".../train/view3/depth")
     parser.add_argument('--path_to_annotations', type=str,
                         default=".../CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.json")
     parser.add_argument('--path_to_dest_dir', type=str,
