@@ -1,0 +1,8 @@
+{
+  "device": "cpu",
+  "images_folder_training": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/rgb",
+  "annotations_folder_training": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/annotations.json",
+  "images_folder_validation": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/rgb_validation",
+  "annotations_folder_validation": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/annotations_validation.json",
+  "output_folder": "C:/Users/giulia.slavic/Documents/CORSMAL/OUTPUTS"
+}
