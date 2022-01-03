@@ -69,7 +69,7 @@ trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTra
     dataExtractorTraining.minMass, dataExtractorTraining.maxMass
 
 # Validation/Testing
-dataExtractorValidation = DE.DataExtractor(annotationsHolderTraining, pathImagesFileTraining, configHolder, trainingMinsAndMaxs)
+dataExtractorValidation = DE.DataExtractor(annotationsHolderValidation, pathImagesFileValidation, configHolder, trainingMinsAndMaxs)
 
 # Plot one batch of images just to check how they are
 oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatched[0,:]
@@ -191,7 +191,7 @@ for n in range(configHolder.config['epochs']):
     ###########################################################################          
     # Save the models
     # torch.save(CNN.state_dict(), outputFolder + '/CNN.torch')
-    torch.save(CNN.state_dict(), configHolder.config['output_folder'] + '/CNN_' + str(n) + '.torch')
+    torch.save(CNN.state_dict(), outputFolder + '/CNN_{}.torch'.format(n))
         
         
     ### VALIDATION
