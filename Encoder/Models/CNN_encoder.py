@@ -4,22 +4,13 @@
 
 ###############################################################################
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from Encoder.Models import Model
+from Encoder.Models import Exceptions
 
-import matplotlib.pyplot as plt
-from torchvision.utils import make_grid
-
-import numpy as np
-
-from torchsummary import summary
-from torchvision.utils import save_image
-
-from Models import SummaryHolder                   as SH
-from Models import SummaryHolderLossesAcrossEpochs as SHLAE
-from Models import Model
-from Models import Exceptions
 
 ###############################################################################
 
@@ -375,7 +366,7 @@ class CNN_encoder(Model.Model):
     # INPUTS:
     # - images
     # - depthAndImageRatios
-    # OUTPUTS:
+    # OUTPUTS_T3_0:
     # - outputMiddleFCLayers
     def Encode(self, images, depthAndImageRatios):
         
@@ -401,7 +392,7 @@ class CNN_encoder(Model.Model):
     #      size_x = size_y
     # - depthAndImageRatios: (batch size * number_of_inputs_ratios)
     #      number_of_inputs_ratios = 3*number_of_cameras
-    # OUTPUTS:
+    # OUTPUTS_T3_0:
     # - predictedValues
     def forward(self, images, depthAndImageRatios):
         
