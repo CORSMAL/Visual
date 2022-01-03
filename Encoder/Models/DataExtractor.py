@@ -27,11 +27,11 @@ class DataExtractor(object):
 
         #######################################################################
         # Define parameters
-        self.number_of_cameras = 1  # <---------------------------------------------------- For now used one camera only
+        self.number_of_cameras = int(configHolder.config['number_of_cameras'])  # <---------------------------------------------------- For now used one camera only
 
         # Number of singled valued parameters
         self.numberOfInputSingleValues = 3 * self.number_of_cameras
-        self.numberOfOutputSingleValues = configHolder.config['number_of_neurons_final_FC']
+        self.numberOfOutputSingleValues = int(configHolder.config['number_of_neurons_final_FC'])
         self.image_channels = 3 * self.number_of_cameras
 
         self.batch_size = configHolder.config['batch_size']
