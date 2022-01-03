@@ -3,8 +3,8 @@ import argparse
 import shutil
 import os
 
-from annotation_parser import JsonParser
-from json_utils import fill_annotation, save_json
+from utils.original_annotations_parser import JsonParser
+from utils.json_utils import fill_annotation, save_json
 
 
 def save_set(src_dir, dest_dir, annotations, indices, set, fold):
