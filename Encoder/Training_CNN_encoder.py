@@ -60,19 +60,23 @@ pathImagesFileValidation = locationsHolder.config['images_folder_validation']
 # Creating data holders for training and validation data
 # Training
 dataExtractorTraining   = DE.DataExtractor(annotationsHolderTraining, pathImagesFileTraining, configHolder)
+
 # Take the mins and maxs of training and pass them to normalize the validation
+# trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTraining.maxAverageDistance, \
+#     dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
+#     dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
 trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTraining.maxAverageDistance, \
-    dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
-    dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
+    dataExtractorTraining.minMass, dataExtractorTraining.maxMass
+
 # Validation/Testing
 dataExtractorValidation = DE.DataExtractor(annotationsHolderTraining, pathImagesFileTraining, configHolder, trainingMinsAndMaxs)
 
 # Plot one batch of images just to check how they are
 oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatched[0,:]
-for i in range(oneImageBatchFromDataExtractorTraining.shape[0]):
-    
-    plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
-    plt.savefig(outputFolder + '/random_IMG_' + str(i))
+# for i in range(oneImageBatchFromDataExtractorTraining.shape[0]):
+#
+#     plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
+#     plt.savefig(outputFolder + '/random_IMG_' + str(i))
 
     
 ###############################################################################
@@ -186,8 +190,8 @@ for n in range(configHolder.config['epochs']):
     
     ###########################################################################          
     # Save the models
-    torch.save(CNN.state_dict(), outputFolder + '/CNN.torch')
-    #torch.save(CNN.state_dict(), configHolder.config['output_folder'] + '/CNN_' + str(n) + '.torch')
+    # torch.save(CNN.state_dict(), outputFolder + '/CNN.torch')
+    torch.save(CNN.state_dict(), configHolder.config['output_folder'] + '/CNN_' + str(n) + '.torch')
         
         
     ### VALIDATION
