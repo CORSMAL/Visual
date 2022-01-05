@@ -61,9 +61,12 @@ pathImagesFileValidation = locationsHolder.config['images_folder_validation']
 # Training
 dataExtractorTraining   = DE.DataExtractor(annotationsHolderTraining, pathImagesFileTraining, configHolder)
 # Take the mins and maxs of training and pass them to normalize the validation
+# trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTraining.maxAverageDistance, \
+#     dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
+#     dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
 trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTraining.maxAverageDistance, \
-    dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
-    dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
+    dataExtractorTraining.minMass, dataExtractorTraining.maxMass
+
 # Validation/Testing
 dataExtractorValidation = DE.DataExtractor(annotationsHolderValidation, pathImagesFileValidation, configHolder, trainingMinsAndMaxs)
 
