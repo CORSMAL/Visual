@@ -15,7 +15,7 @@ import os
 from select_last_k_frames import SelectLastKFrames
 from utils.original_annotations_parser import JsonParser
 from utils.json_utils import save_json
-from utils.utils import draw_segmentation_map, get_outputs, get_filenames, filter_results
+from utils.utils import  get_outputs, get_filenames, filter_results
 from torchvision.transforms import transforms as transforms
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 
@@ -33,6 +33,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
         os.mkdir(os.path.join(path_to_dest, "rgb"))
     if not os.path.exists(os.path.join(path_to_dest, "depth")):
         os.mkdir(os.path.join(path_to_dest, "depth"))
+    if not os.path.exists(os.path.join(path_to_dest, "mask")):
+            os.mkdir(os.path.join(path_to_dest, "mask"))
 
     # initialize the model
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True, progress=True, num_classes=91)
@@ -64,6 +66,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
         rgb_patches_list = []
         dpt_patches_list = []
         prediction_list = []
+        mask_patches_list = []
         while video_cap.isOpened():
             ret, bgr_frame = video_cap.read()
 
@@ -71,7 +74,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
             if ret:
                 # convert to RGB
                 rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
-                orig_frame = bgr_frame.copy()
+                # orig_frame = bgr_frame.copy()
                 # transform the image
                 rgb_frame = transform(rgb_frame)
                 # add a batch dimension
@@ -109,6 +112,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
                     temp_dpt = dpt_im.copy()
                     patch_dpt = temp_dpt[ymin:ymax, xmin:xmax]
                     dpt_patches_list.append(patch_dpt)
+                    mask_patches_list.append(mask)
                     # cv2.imshow("Patch depth", patch_dpt)
                     non_zero_count = np.count_nonzero(patch_dpt[mask])
                     avg_d = round(np.sum(patch_dpt[mask]) / non_zero_count, 2)
@@ -135,7 +139,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
                 video_cap.set(cv2.CAP_PROP_POS_FRAMES, counter)
             else:
                 break
-        algo.update_frames(rgb_patches_list, dpt_patches_list, prediction_list)
+        algo.update_frames(rgb_patches_list, dpt_patches_list, prediction_list, mask_patches_list)
         algo.select_frames()
         cont_id = annotations.container_id[ind]
         wt = annotations.wt[ind]
@@ -152,15 +156,15 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_annotations, path_
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(prog='generate_training_set',
-                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR> --path_to_annotations <PATH_TO_ANN> --path_to_dest_dir <PATH_TO_DEST_DIR>')
+                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default=".../train/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default=".../train/view3/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
     parser.add_argument('--path_to_annotations', type=str,
-                        default=".../CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.json")
+                        default="/home/sealab-ws/PycharmProjects/Corsmal_challenge/CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.json")
     parser.add_argument('--path_to_dest_dir', type=str,
-                        default=".../train_patches")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito")
     args = parser.parse_args()
 
     # Assertions
