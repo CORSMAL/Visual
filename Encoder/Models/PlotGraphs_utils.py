@@ -23,7 +23,7 @@ def scatter_states(states, n_states_to_display, file):
     for i in range(0,n_states_to_display):
         axes[i].scatter(x_axis, states[:, i], s=1) 
     plt.savefig(file)
-    plt.show() 
+    # plt.show()
     
     return
 
@@ -34,7 +34,7 @@ def plot_states(states, n_states_to_display, file):
     for i in range(0,n_states_to_display):
         axes[i].plot(x_axis, states[:, i]) 
     plt.savefig(file)
-    plt.show() 
+    # plt.show()
     return
 
 def plot_predicted_vs_real_states(predicted_states, real_states, file):
@@ -55,7 +55,7 @@ def plot_predicted_vs_real_states_on1D(predicted_states, real_states, n_states_t
         axes[i].plot(x_axis, real_states[:, i], 'red') 
         axes[i].plot(x_axis, predicted_states[:, i], 'black') 
     plt.savefig(file)
-    plt.show() 
+    # plt.show()
     
     return
 
@@ -88,7 +88,7 @@ def plot_loss(loss, file):
     plt.close('all') # first close all other plots, or they will appear one over the others
     plt.plot(loss) 
     plt.savefig(file)
-    plt.show() 
+    # plt.show()
     
     return
 
@@ -101,7 +101,7 @@ def plot_alpha_values(alpha_values_to_plot,file_name):
         ax.plot(alpha_values_to_plot[:,i], linestyle='-')
     plt.title('alpha values')
     plt.savefig(file_name)
-    plt.show() 
+    # plt.show()
 
 def HandleLossOverAllEpochs(averageLossesOverAllEpochs, lossesOverCurrentEpoch, folderFileName):
     
