@@ -65,14 +65,14 @@ trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTra
     dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
     dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
 # Validation/Testing
-dataExtractorValidation = DE.DataExtractor(annotationsHolderTraining, pathImagesFileTraining, configHolder, trainingMinsAndMaxs)
+dataExtractorValidation = DE.DataExtractor(annotationsHolderValidation, pathImagesFileValidation, configHolder, trainingMinsAndMaxs)
 
 # Plot one batch of images just to check how they are
 oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatched[0,:]
-for i in range(oneImageBatchFromDataExtractorTraining.shape[0]):
-    
-    plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
-    plt.savefig(outputFolder + '/random_IMG_' + str(i))
+# for i in range(oneImageBatchFromDataExtractorTraining.shape[0]):
+#
+#     plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
+#     plt.savefig(outputFolder + '/random_IMG_' + str(i))
 
     
 ###############################################################################
@@ -186,8 +186,8 @@ for n in range(configHolder.config['epochs']):
     
     ###########################################################################          
     # Save the models
-    torch.save(CNN.state_dict(), outputFolder + '/CNN.torch')
-    #torch.save(CNN.state_dict(), configHolder.config['output_folder'] + '/CNN_' + str(n) + '.torch')
+    # torch.save(CNN.state_dict(), outputFolder + '/CNN.torch')
+    torch.save(CNN.state_dict(), os.path.join(outputFolder, 'CNN_{}.torch'.format(n)))
         
         
     ### VALIDATION
@@ -216,7 +216,7 @@ for n in range(configHolder.config['epochs']):
             
             # Denormalize predictions
             predictedValuesBatchDenorm = CNN.CalculateOutputValueDenormalized(predictedValuesBatch, 
-                                                                              dataExtractorTraining.batch_size)
+                                                                              dataExtractorValidation.batch_size)
             
             # Denormalized error (just for plotting and getting real range estimation)
             denormError = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
