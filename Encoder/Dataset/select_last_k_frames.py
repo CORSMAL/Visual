@@ -20,13 +20,15 @@ class SelectLastKFrames:
         keys = {"annotations"}
         self.gt_json = {key: [] for key in keys}
 
-    def update_frames(self, rgb_patches_list, dpt_patches_list, prediction_list):
+    def update_frames(self, rgb_patches_list, dpt_patches_list, prediction_list, mask_patches_list):
         self.rgb_patches_list = rgb_patches_list
         self.dpt_patches_list = dpt_patches_list
         self.prediction_list = prediction_list
+        self.mask_patches_list = mask_patches_list
         self.selected_rgb_patches = []
         self.selected_dpt_patches = []
         self.selected_predictions = []
+        self.selected_mask_patches = []
 
     def select_frames(self):
         """ Selects the last k patches based on the minimum distance"""
@@ -43,6 +45,7 @@ class SelectLastKFrames:
             self.selected_rgb_patches.append(self.rgb_patches_list[index_min])
             self.selected_dpt_patches.append(self.dpt_patches_list[index_min])
             self.selected_predictions.append(self.prediction_list[index_min])
+            self.selected_mask_patches.append(self.mask_patches_list[index_min])
             # cv2.imshow("", np.vstack((self.rgb_patches_list[index_min][:, :, ::-1],
             #                           cv2.applyColorMap(cv2.convertScaleAbs(self.dpt_patches_list[index_min], alpha=0.03), cv2.COLORMAP_JET))))
             #
@@ -61,6 +64,7 @@ class SelectLastKFrames:
         k = min(self.k, len(self.prediction_list))
         path_to_dest_rgb = os.path.join(path_to_dest, "rgb")
         path_to_dest_dpt = os.path.join(path_to_dest, "depth")
+        path_to_dest_masks = os.path.join(path_to_dest, "mask")
         for i in range(k):
             final_name = file_name + "_{}.png".format(i)
             # save rgb patch
@@ -69,6 +73,9 @@ class SelectLastKFrames:
             # save depth frames (check values)
             cv2.imwrite(os.path.join(path_to_dest_dpt, final_name),
                         self.selected_dpt_patches[i].astype(np.uint16))
+            # save mask
+            cv2.imwrite(os.path.join(path_to_dest_masks, final_name),
+                        self.selected_mask_patches[i].astype(np.uint8))
             [_, _, ar_w, ar_h, avg_d] = self.selected_predictions[i]
             # cv2.imshow("", np.vstack((self.selected_rgb_patches[i][:, :, ::-1],
             #                           cv2.applyColorMap(cv2.convertScaleAbs(self.selected_dpt_patches[i], alpha=0.03), cv2.COLORMAP_JET))))
