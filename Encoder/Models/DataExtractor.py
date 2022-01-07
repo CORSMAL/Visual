@@ -38,8 +38,8 @@ class DataExtractor(object):
 
         # Number of singled valued parameters
         self.numberOfInputSingleValues = 3 * self.number_of_cameras
-        self.numberOfOutputSingleValues = 2 * self.number_of_cameras
-        self.image_channels = 3 * self.number_of_cameras
+        self.numberOfOutputSingleValues = 1 * self.number_of_cameras
+        self.image_channels = 1# 3 * self.number_of_cameras
 
         self.batch_size = configHolder.config['batch_size']
         # Size of images
@@ -218,7 +218,7 @@ class DataExtractor(object):
             # currentWidthTopNorm = (currentWidthTop - self.minWidthTop) / (self.maxWidthTop - self.minWidthTop)
             # currentWidthBottomNorm = (currentWidthBottom - self.minWidthBottom) / (
             #         self.maxWidthBottom - self.minWidthBottom)
-            currentMass = (currentMass - self.minMass) / (self.maxMass - self.minMass)
+            currentMassNorm = (currentMass - self.minMass) / (self.maxMass - self.minMass)
 
             # Put the inputs and outputs in their arrays
             inputSingleValues[i, 0] = currentAspectRatioWidth
@@ -227,7 +227,7 @@ class DataExtractor(object):
 
             # outputSingleValues[i, 0] = currentWidthTopNorm
             # outputSingleValues[i, 1] = currentWidthBottomNorm
-            outputSingleValues[i, 0] = currentMass
+            outputSingleValues[i, 0] = currentMassNorm
 
         return inputSingleValues, outputSingleValues
 

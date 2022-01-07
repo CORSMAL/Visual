@@ -218,7 +218,7 @@ class SummaryHolder(object):
     def PerformDataReshaping3D(data, batchSize):
         
         data = np.asarray(data)
-        data = np.squeeze(data)
+        # data = np.squeeze(data)
         
         # Case for example of learning rate: there is a single value per epoch
         # and after using the squeeze function, data will have dimension ()

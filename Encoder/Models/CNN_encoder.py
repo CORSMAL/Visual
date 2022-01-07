@@ -57,7 +57,7 @@ class CNN_encoder(Model.Model):
         # ---------------------------------------------------------------------
         # From indications set in the configuration file
         self.number_of_cameras = number_of_cameras
-        self.image_channels    = 3*self.number_of_cameras
+        self.image_channels    = 1 # 3*self.number_of_cameras
         self.image_size        = image_size
         self.minValuesOutput   = minValuesOutput
         self.maxValuesOutput   = maxValuesOutput
