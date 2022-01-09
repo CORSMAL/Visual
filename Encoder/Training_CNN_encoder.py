@@ -272,15 +272,6 @@ for n in range(configHolder.config['epochs']):
                                                           dataStructure = 2, batchSize = configHolder.config['batch_size'],
                                                           filePrefix = 'VAL_')
 
-
-
-
-
-
-
-
-
-
-
-
-
+min_val, min_index = summaryValidationAllEpochs.FindBestEpochValidation('denorm_err')
+print("Best checkpoint value: {}".format(min_val))
+print("Best checkpoint index: {}".format(min_index))
