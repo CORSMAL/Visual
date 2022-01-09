@@ -255,7 +255,8 @@ class CNN_encoder(Model.Model):
                                                            padding      =  0, 
                                                            stride       = (self.stride[i], self.stride[i])),
                                                  nn.BatchNorm2d(output_channels),
-                                                 nn.LeakyReLU(0.1) 
+                                                 nn.LeakyReLU(0.1),
+                                                 nn.Dropout(p = 0.8)
                                                  ])
             
             # Add layer to the list
@@ -282,6 +283,13 @@ class CNN_encoder(Model.Model):
                     
             outputDimensions    = self.number_of_neurons_middle_FC[i]
             
+            # Define the current layer
+            currentLayer       = nn.Sequential(*[
+                                                 nn.Linear(inputDimensions, outputDimensions),
+                                                 nn.LeakyReLU(0.1),
+                                                 nn.Dropout(p = 0.5)
+                                                 ])
+            
             # Definition of linear layer
             currentLayer = nn.Linear(inputDimensions, outputDimensions)
             
@@ -307,8 +315,18 @@ class CNN_encoder(Model.Model):
                     
             outputDimensions    = self.number_of_neurons_final_FC[i]
             
-            # Definition of linear layer
-            currentLayer = nn.Linear(inputDimensions, outputDimensions)
+            if i == numberOfLayersFinalFC - 1:
+            
+                # Definition of linear layer
+                currentLayer = nn.Linear(inputDimensions, outputDimensions)
+                
+            else:
+                
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.LeakyReLU(0.1),
+                                                nn.Dropout(p = 0.5)
+                                                ])
             
             finalFCs.append(currentLayer)
         

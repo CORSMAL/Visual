@@ -21,6 +21,7 @@ class SquarePad:
 
 class BinaryImage:
     def __call__(self, image):
+        
         pixels = image.load()
         for i in range(image.size[0]):  # for every pixel:
             for j in range(image.size[1]):
@@ -115,7 +116,7 @@ class DataExtractor(object):
         #     transforms.ToTensor(),
         # ])
         transform = transforms.Compose([
-            # BinaryImage(),
+            BinaryImage(),
             SquarePad(),
             transforms.Resize((self.x_size, self.y_size)),
             transforms.ToTensor(),
