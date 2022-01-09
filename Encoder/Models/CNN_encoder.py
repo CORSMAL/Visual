@@ -57,7 +57,7 @@ class CNN_encoder(Model.Model):
         # ---------------------------------------------------------------------
         # From indications set in the configuration file
         self.number_of_cameras = number_of_cameras
-        self.image_channels    = 1 # 3*self.number_of_cameras
+        self.image_channels    = 3*self.number_of_cameras # 1
         self.image_size        = image_size
         self.minValuesOutput   = minValuesOutput
         self.maxValuesOutput   = maxValuesOutput
@@ -283,13 +283,14 @@ class CNN_encoder(Model.Model):
                     
             outputDimensions    = self.number_of_neurons_middle_FC[i]
             
+            
             # Define the current layer
             currentLayer       = nn.Sequential(*[
                                                  nn.Linear(inputDimensions, outputDimensions),
                                                  nn.LeakyReLU(0.1),
                                                  nn.Dropout(p = 0.5)
                                                  ])
-            
+
             # Definition of linear layer
             currentLayer = nn.Linear(inputDimensions, outputDimensions)
             

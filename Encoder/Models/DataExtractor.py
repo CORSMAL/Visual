@@ -18,11 +18,19 @@ class SquarePad:
         padding = (p_left, p_top, p_right, p_bottom)
         return F.pad(image, padding, 0, 'constant')
 
-
 class BinaryImage:
     def __call__(self, image):
         
+        print('image SHAPE')
+        print(image.size)
+        
         pixels = image.load()
+        
+        
+        print('pixels SHAPE')
+        print(pixels.shape)
+        
+        
         for i in range(image.size[0]):  # for every pixel:
             for j in range(image.size[1]):
                 pixels[i, j] *= 255
@@ -40,7 +48,7 @@ class DataExtractor(object):
         # Number of singled valued parameters
         self.numberOfInputSingleValues = 3 * self.number_of_cameras
         self.numberOfOutputSingleValues = 1 * self.number_of_cameras
-        self.image_channels = 1# 3 * self.number_of_cameras
+        self.image_channels = 3 * self.number_of_cameras # 1
 
         self.batch_size = configHolder.config['batch_size']
         # Size of images
@@ -116,7 +124,7 @@ class DataExtractor(object):
         #     transforms.ToTensor(),
         # ])
         transform = transforms.Compose([
-            BinaryImage(),
+            #BinaryImage(),
             SquarePad(),
             transforms.Resize((self.x_size, self.y_size)),
             transforms.ToTensor(),

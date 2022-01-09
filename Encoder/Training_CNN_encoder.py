@@ -77,7 +77,10 @@ oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatche
 #     plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
 #     plt.savefig(outputFolder + '/random_IMG_' + str(i))
 
-chosen_batch = 0
+''' 
+# Checking correspondance between images and annotations.
+
+chosen_batch = 23
 chosen_value = 0
 
 inputImagesBatched        = dataExtractorTraining.inputImagesBatched[chosen_batch, chosen_value]
@@ -88,7 +91,8 @@ print('Inputs: ' + str(inputSingleValuesBatched))
 print('Outputs: ' + str(outputSingleValuesBatched))
 
 plt.imshow( inputImagesBatched.permute(1, 2, 0) )
-    
+'''
+
 ###############################################################################
     
 # Initialize CNN and print it
