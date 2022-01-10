@@ -189,13 +189,15 @@ class DataExtractor(object):
         # Min and max of average distance, width top and width bottom
         self.minAverageDistance, self.maxAverageDistance = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
                                                                                                     'average distance')
+        print("Min dist: {}".format(self.minAverageDistance))
+        print("Max dist: {}".format(self.maxAverageDistance))
         # self.minWidthTop, self.maxWidthTop = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder, 'width top')
         # self.minWidthBottom, self.maxWidthBottom = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
         #                                                                                     'width bottom')
         self.minMass, self.maxMass = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
                                                                               'mass')
-        print("Min: {}".format(self.minMass))
-        print("Max: {}".format(self.maxMass))
+        print("Min mass: {}".format(self.minMass))
+        print("Max mass: {}".format(self.maxMass))
         self.CompactMaxsAndMinsValuesOutputs()
 
         return
