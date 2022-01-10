@@ -290,9 +290,6 @@ class CNN_encoder(Model.Model):
                                                  nn.LeakyReLU(0.1),
                                                  nn.Dropout(p = 0.5)
                                                  ])
-
-            # Definition of linear layer
-            currentLayer = nn.Linear(inputDimensions, outputDimensions)
             
             middleFCs.append(currentLayer)
         
@@ -319,7 +316,9 @@ class CNN_encoder(Model.Model):
             if i == numberOfLayersFinalFC - 1:
             
                 # Definition of linear layer
-                currentLayer = nn.Linear(inputDimensions, outputDimensions)
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions)
+                                                ])
                 
             else:
                 
