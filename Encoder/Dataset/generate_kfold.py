@@ -3,8 +3,8 @@ import argparse
 import shutil
 import os
 
-from annotation_parser import JsonParser
-from json_utils import fill_annotation, save_json
+from utils.annotation_parser import JsonParser
+from utils.json_utils import fill_annotation, save_json
 
 
 def save_set(src_dir, dest_dir, annotations, indices, set, fold):
@@ -47,6 +47,7 @@ def prepare_fold(annotations, train_ids):
     for id in train_ids:
         ind_list = [i for i in range(0, len(annotations.container_id)) if annotations.container_id[i] == id]
         indices += ind_list
+    indices.sort()
     return indices
 
 
@@ -55,9 +56,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_kfold',
                                      usage='%(prog)s --path_to_annotations <PATH_TO_ANN> --path_to_src_dir <PATH_TO_SRC_DIR>')
     parser.add_argument('--path_to_annotations', type=str,
-                        default=".../annotations.json")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/annotations.json")
     parser.add_argument('--path_to_src_dir', type=str,
-                        default=".../train_patches/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/rgb")
     args = parser.parse_args()
 
     # Assertions
