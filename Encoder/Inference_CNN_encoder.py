@@ -80,7 +80,7 @@ CNN = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
                               maxValuesOutput=dataExtractorTraining.maxValuesOutput)
 CNN.print()
 
-CNN.load_state_dict(torch.load("/home/sealab-ws/PycharmProjects/Apicella_PyCharm/Visual/Encoder/OUTPUTS/CNN_26.torch"))
+CNN.load_state_dict(torch.load("/home/sealab-ws/PycharmProjects/Apicella_PyCharm/Visual/Encoder/OUTPUTS_0_adam/CNN_74.torch"))
 CNN.eval()
 
 ann = JsonParser()
@@ -95,8 +95,8 @@ for i in range(0, len(ann.image_name)):
     imgCurr = Image.open(os.path.join(pathImagesFileValidation, file_name))
 
     imgCurrTransformed = transform(imgCurr)
-    cv2.imshow("", imgCurrTransformed.numpy().transpose(1, 2, 0)[:,:,::-1])
-    cv2.waitKey(0)
+    # cv2.imshow("", imgCurrTransformed.numpy().transpose(1, 2, 0)[:,:,::-1])
+    # cv2.waitKey(0)
 
     inputImages = torch.zeros(1, 3,
                               224, 224)
@@ -115,4 +115,4 @@ for i in range(0, len(ann.image_name)):
     # outputSingleValues[0,2] = (ann.height[i] - dataExtractorValidation.minHeight) / (
     #         dataExtractorValidation.maxHeight - dataExtractorValidation.minHeight)
     print("true: {}".format(ann.mass[i]))
-    print("prediction: {}".format(max(0,CNN.CalculateOutputValueDenormalized(predictedValues, 1))))
+    print("prediction: {}".format(int(max(0,CNN.CalculateOutputValueDenormalized(predictedValues, 1).cpu().detach().numpy()[0][0]))))
