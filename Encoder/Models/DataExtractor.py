@@ -245,14 +245,21 @@ class DataExtractor(object):
     def ShuffleData(self, inputImages, inputSingleValues, outputSingleValues):
 
         # First we must define the indices of shuffling
-        indicesOrder = np.arange(self.numberOfImages)  # All indices in order
+        # indicesOrder = np.arange(self.numberOfImages)  # All indices in order
+        indicesOrder = np.arange(self.numberOfImages // 5)
         # We shuffle the above indices
-        newIndices = indicesOrder
+        # newIndices = indicesOrder
+        newIndices = np.arange(self.numberOfImages)
         for i in range(len(indicesOrder)):
             pickValue = random.choice(indicesOrder)
             indexPickedValue = np.where(indicesOrder == pickValue)
+            # indicesOrder = np.delete(indicesOrder, (indexPickedValue[0]), axis=0)
+            newIndices[i*5] = pickValue
+            newIndices[i*5+1] = pickValue + 1
+            newIndices[i * 5 + 2] = pickValue + 2
+            newIndices[i * 5 + 3] = pickValue + 3
+            newIndices[i * 5 + 4] = pickValue + 4
             indicesOrder = np.delete(indicesOrder, (indexPickedValue[0]), axis=0)
-            newIndices[i] = pickValue
 
         # Now we shuffle the data based on the above indices
         inputImagesShuffle = inputImages[newIndices, :, :, :]
