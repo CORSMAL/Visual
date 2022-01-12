@@ -200,7 +200,7 @@ for n in range(configHolder.config['epochs']):
     # Save to matlab the values over the current epoch
     summaryCurrentEpochTraining.BringValuesToMatlab(outputFolder = outputFolder, 
                                                     dataStructure = 2, batchSize = configHolder.config['batch_size'], 
-                                                    filePrefix = 'TRAIN_')
+                                                    filePrefix = 'TRAIN_currEpoch')
     
     ###########################################################################          
     # Save the models
@@ -270,7 +270,7 @@ for n in range(configHolder.config['epochs']):
         # Save to matlab the values over the current epoch
         summaryCurrentEpochValidation.BringValuesToMatlab(outputFolder = outputFolder, 
                                                           dataStructure = 2, batchSize = configHolder.config['batch_size'],
-                                                          filePrefix = 'VAL_')
+                                                          filePrefix = 'VAL_currEpoch')
 
 min_val, min_index = summaryValidationAllEpochs.FindBestEpochValidation('denorm_err')
 print("Best checkpoint value: {}".format(min_val))
