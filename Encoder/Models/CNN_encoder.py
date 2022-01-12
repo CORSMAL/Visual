@@ -465,5 +465,8 @@ class CNN_encoder(Model.Model):
         
         return denormError
 
+    def ComputeAverage(self, predictedValues):
+        return torch.mean(predictedValues)
+
 
     
