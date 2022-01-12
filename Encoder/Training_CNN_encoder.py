@@ -65,7 +65,9 @@ dataExtractorTraining   = DE.DataExtractor(annotationsHolderTraining, pathImages
 #     dataExtractorTraining.minWidthTop, dataExtractorTraining.maxWidthTop, \
 #     dataExtractorTraining.minWidthBottom, dataExtractorTraining.maxWidthBottom
 trainingMinsAndMaxs = dataExtractorTraining.minAverageDistance, dataExtractorTraining.maxAverageDistance, \
-    dataExtractorTraining.minMass, dataExtractorTraining.maxMass
+    dataExtractorTraining.minRatioWidth, dataExtractorTraining.maxRatioWidth, \
+        dataExtractorTraining.minRatioHeight, dataExtractorTraining.maxRatioHeight, \
+            dataExtractorTraining.minMass, dataExtractorTraining.maxMass
 
 # Validation/Testing
 dataExtractorValidation = DE.DataExtractor(annotationsHolderValidation, pathImagesFileValidation, configHolder, trainingMinsAndMaxs)
@@ -77,10 +79,10 @@ oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatche
 #     plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
 #     plt.savefig(outputFolder + '/random_IMG_' + str(i))
 
-''' 
+'''
 # Checking correspondance between images and annotations.
 
-chosen_batch = 23
+chosen_batch = 5
 chosen_value = 0
 
 inputImagesBatched        = dataExtractorTraining.inputImagesBatched[chosen_batch, chosen_value]

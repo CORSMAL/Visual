@@ -60,8 +60,12 @@ class DataExtractor(object):
         if trainingMinsAndMaxs != None:
             # self.minAverageDistance, self.maxAverageDistance, self.minWidthTop, self.maxWidthTop, \
             # self.minWidthBottom, self.maxWidthBottom = trainingMinsAndMaxs
-            self.minAverageDistance, self.maxAverageDistance, self.minMass, self.maxMass = trainingMinsAndMaxs
+            self.minAverageDistance, self.maxAverageDistance, \
+                self.minRatioWidth, self.maxRatioWidth, \
+                    self.minRatioHeight, self.maxRatioHeight, \
+                        self.minMass, self.maxMass = trainingMinsAndMaxs
 
+                
         self.FindNumberOfImages(pathImagesFile)
         self.FindNumberOfBatches()
 
@@ -187,6 +191,16 @@ class DataExtractor(object):
         # Extracting the min and max of average distance and width, to perform normalization
 
         # Min and max of average distance, width top and width bottom
+        self.minRatioWidth, self.maxRatioWidth = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
+                                                                                                    'aspect ratio width')
+        print("Min ratio x: {}".format(self.minRatioWidth))
+        print("Max ratio x: {}".format(self.maxRatioWidth))
+        
+        self.minRatioHeight, self.maxRatioHeight = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
+                                                                                                    'aspect ratio height')       
+        print("Min ratio y: {}".format(self.minRatioHeight))
+        print("Max ratio y: {}".format(self.maxRatioHeight))
+        
         self.minAverageDistance, self.maxAverageDistance = DataExtractor.FindMinAndMaxInAnnotations(annotationsHolder,
                                                                                                     'average distance')
         print("Min dist: {}".format(self.minAverageDistance))
@@ -210,6 +224,7 @@ class DataExtractor(object):
 
         # Extracting the annotation inputs and outputs (normalizing them, except for the image ratio)
         for i in range(self.numberOfImages):
+            
             # Extract aspect ratio, average distance (inputs)
             currentAspectRatioWidth = annotationsHolder.config['annotations'][i]['aspect ratio width']
             currentAspectRatioHeight = annotationsHolder.config['annotations'][i]['aspect ratio height']
@@ -220,10 +235,14 @@ class DataExtractor(object):
             currentMass = annotationsHolder.config['annotations'][i]['mass']
 
             ## CLIP ??
-            currentAverageDistance = min(currentAverageDistance, self.maxAverageDistance)
-            currentMass = min(currentMass, self.maxMass)
+            #currentAverageDistance = min(currentAverageDistance, self.maxAverageDistance)
+            #currentMass = min(currentMass, self.maxMass)
 
             # Normalize the data
+            currentAverageRatioWidthNorm = (currentAspectRatioWidth - self.minRatioWidth) / (
+                    self.maxRatioWidth - self.minRatioWidth)
+            currentAverageRatioHeightNorm = (currentAspectRatioHeight - self.minRatioHeight) / (
+                    self.maxRatioHeight - self.minRatioHeight)
             currentAverageDistanceNorm = (currentAverageDistance - self.minAverageDistance) / (
                     self.maxAverageDistance - self.minAverageDistance)
             # currentWidthTopNorm = (currentWidthTop - self.minWidthTop) / (self.maxWidthTop - self.minWidthTop)
@@ -232,8 +251,8 @@ class DataExtractor(object):
             currentMassNorm = (currentMass - self.minMass) / (self.maxMass - self.minMass)
 
             # Put the inputs and outputs in their arrays
-            inputSingleValues[i, 0] = currentAspectRatioWidth
-            inputSingleValues[i, 1] = currentAspectRatioHeight
+            inputSingleValues[i, 0] = currentAverageRatioWidthNorm
+            inputSingleValues[i, 1] = currentAverageRatioHeightNorm
             inputSingleValues[i, 2] = currentAverageDistanceNorm
 
             # outputSingleValues[i, 0] = currentWidthTopNorm
