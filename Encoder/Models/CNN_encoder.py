@@ -477,7 +477,7 @@ class CNN_encoder(Model.Model):
         
         return denormError, predictedValuesNorm, realValuesNorm
 
-    def ComputeAverage(self, predictedValues):
+    def AveragePredictions(self, predictedValues):
         return torch.mean(predictedValues)
 
 
