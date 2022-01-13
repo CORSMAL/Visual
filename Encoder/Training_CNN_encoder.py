@@ -79,7 +79,7 @@ oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatche
 #     plt.imshow(oneImageBatchFromDataExtractorTraining[i,:].permute(1,2,0))
 #     plt.savefig(outputFolder + '/random_IMG_' + str(i))
 
-'''
+
 # Checking correspondance between images and annotations.
 
 chosen_batch = 5
@@ -93,7 +93,8 @@ print('Inputs: ' + str(inputSingleValuesBatched))
 print('Outputs: ' + str(outputSingleValuesBatched))
 
 plt.imshow( inputImagesBatched.permute(1, 2, 0) )
-'''
+
+
 
 ###############################################################################
     
@@ -162,9 +163,15 @@ for n in range(configHolder.config['epochs']):
                                                                           dataExtractorTraining.batch_size)
         
         # Denormalized error (just for plotting and getting real range estimation)
-        denormError = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
+        denormError, predictedValuesNorm, realValuesNorm = CNN.CalculateDenormalizedError(predictedValuesBatch, 
+                                                     currentOutputSingleValuesImagesBatch, 
                                                      dataExtractorTraining.batch_size)
-        
+        '''
+        print('predictedValuesNorm')
+        print(predictedValuesNorm)
+        print('realValuesNorm')
+        print(realValuesNorm)
+        '''
         
         # Optimize 
         optimizer.zero_grad()
@@ -184,6 +191,7 @@ for n in range(configHolder.config['epochs']):
         
         del currentInputImagesBatch, currentInputSingleValuesBatch, currentOutputSingleValuesImagesBatch
         del predictedValuesBatch, predictedValuesBatchDenorm
+        del predictedValuesNorm, realValuesNorm
         del loss, denormError
         
         if device.type == "cuda":
@@ -239,7 +247,7 @@ for n in range(configHolder.config['epochs']):
                                                                               dataExtractorValidation.batch_size)
             
             # Denormalized error (just for plotting and getting real range estimation)
-            denormError = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
+            denormError, predictedValuesNorm, realValuesNorm = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
                                                          dataExtractorValidation.batch_size)
             
             # Append loss in summary
@@ -254,6 +262,7 @@ for n in range(configHolder.config['epochs']):
             
             del currentInputImagesBatch, currentInputSingleValuesBatch, currentOutputSingleValuesImagesBatch
             del predictedValuesBatch, predictedValuesBatchDenorm
+            del predictedValuesNorm, realValuesNorm
             del loss, denormError
             
             if device.type == "cuda":

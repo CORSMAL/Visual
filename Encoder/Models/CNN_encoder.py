@@ -255,8 +255,8 @@ class CNN_encoder(Model.Model):
                                                            padding      =  0, 
                                                            stride       = (self.stride[i], self.stride[i])),
                                                  nn.BatchNorm2d(output_channels),
-                                                 nn.LeakyReLU(0.1),
-                                                 nn.Dropout(p = 0.8)
+                                                 nn.ReLU(),
+                                                 nn.Dropout(p = 0.5)
                                                  ])
             
             # Add layer to the list
@@ -284,12 +284,22 @@ class CNN_encoder(Model.Model):
             outputDimensions    = self.number_of_neurons_middle_FC[i]
             
             
-            # Define the current layer
-            currentLayer       = nn.Sequential(*[
-                                                 nn.Linear(inputDimensions, outputDimensions),
-                                                 nn.LeakyReLU(0.1),
-                                                 nn.Dropout(p = 0.5)
-                                                 ])
+            if i == numberOfLayersMiddleFC - 1:
+            
+                # Definition of linear layer
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.Sigmoid(),
+                                                nn.Dropout(p = 0.3)
+                                                ])
+                
+            else:
+                
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.ReLU(),
+                                                nn.Dropout(p = 0.5)
+                                                ])
             
             middleFCs.append(currentLayer)
         
@@ -317,14 +327,16 @@ class CNN_encoder(Model.Model):
             
                 # Definition of linear layer
                 currentLayer  = nn.Sequential(*[
-                                                nn.Linear(inputDimensions, outputDimensions)
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.Sigmoid(),
+                                                nn.Dropout(p = 0.3)
                                                 ])
                 
             else:
                 
                 currentLayer  = nn.Sequential(*[
                                                 nn.Linear(inputDimensions, outputDimensions),
-                                                nn.LeakyReLU(0.1),
+                                                nn.ReLU(),
                                                 nn.Dropout(p = 0.5)
                                                 ])
             
@@ -463,7 +475,7 @@ class CNN_encoder(Model.Model):
         # Mean absolute error
         denormError = torch.mean(torch.mean(torch.abs(predictedValuesNorm - realValuesNorm)))
         
-        return denormError
+        return denormError, predictedValuesNorm, realValuesNorm
 
     def ComputeAverage(self, predictedValues):
         return torch.mean(predictedValues)
