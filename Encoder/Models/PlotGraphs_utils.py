@@ -5,6 +5,11 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+
+from PIL import Image,ImageDraw
+
+from torchvision import transforms
+
 colors_array = np.array(['lightpink', 'grey', 'blue', 'cyan', 'lime', 'green', 'yellow', 'gold', 'red', 'maroon',
                    'rosybrown', 'salmon', 'sienna', 'palegreen', 'sandybrown', 'deepskyblue', 
                    'fuchsia', 'purple', 'crimson', 'cornflowerblue', 
@@ -119,3 +124,29 @@ def HandleLossOverAllEpochs(averageLossesOverAllEpochs, lossesOverCurrentEpoch, 
     
 
     return averageLossesOverAllEpochs
+
+def PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch, 
+                                        realValuesDenorm, predictedValuesDenorm, 
+                                        currentOutputSingleValuesImagesBatch, predictedValuesBatch,
+                                        filePath):
+    
+    for imgIndex in range(currentInputImagesBatch.shape[0]):
+        
+        # Path of the current image
+        currentImageFilePath = filePath + "_image_" + str(imgIndex) + ".png"
+        # Take out current image
+        currentImage = currentInputImagesBatch[imgIndex,:,:,:]
+        currentImage_IM = transforms.ToPILImage()(currentImage).convert("RGB")
+        
+        # Draw image and add text
+        draw = ImageDraw.Draw(currentImage_IM)           
+        textOnImage = ' Real mass: {} \n Predicted mass: {} \n Real mass (norm): {} \n Predicted mass (norm): {} \n Image ratio x (norm): {} \n Image ration y (norm): {} \n Depth (norm): {}'.format(
+            realValuesDenorm[imgIndex].item(), predictedValuesDenorm[imgIndex].item(), 
+            currentOutputSingleValuesImagesBatch[imgIndex].item(), predictedValuesBatch[imgIndex].item(), 
+            currentInputSingleValuesBatch[imgIndex,0].item(), 
+            currentInputSingleValuesBatch[imgIndex,1].item(), currentInputSingleValuesBatch[imgIndex,2].item())
+        draw.text( (0,20), textOnImage )   
+        # Save to path
+        currentImage_IM.save(currentImageFilePath, "PNG")
+    
+    return

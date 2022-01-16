@@ -11,10 +11,14 @@ from Models import SummaryHolder       as SH
 from Models import SummaryHolderLossesAcrossEpochs       as SHLAE
 from Models import CNN_encoder
 from Models import DataExtractor as DE
+from Models import PlotGraphs_utils as PG
+
+from PIL import Image,ImageDraw
 
 import numpy as np
 
 import matplotlib.pyplot as plt
+from torchvision import transforms
 
 ###############################################################################
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -163,15 +167,18 @@ for n in range(configHolder.config['epochs']):
                                                                           dataExtractorTraining.batch_size)
         
         # Denormalized error (just for plotting and getting real range estimation)
-        denormError, predictedValuesNorm, realValuesNorm = CNN.CalculateDenormalizedError(predictedValuesBatch, 
+        denormError, predictedValuesDenorm, realValuesDenorm = CNN.CalculateDenormalizedError(predictedValuesBatch, 
                                                      currentOutputSingleValuesImagesBatch, 
                                                      dataExtractorTraining.batch_size)
-        '''
-        print('predictedValuesNorm')
-        print(predictedValuesNorm)
-        print('realValuesNorm')
-        print(realValuesNorm)
-        '''
+        
+        # Printing all the predictions, with all the information given above
+        if not os.path.exists(outputFolder + "/TRAIN/"):
+             os.makedirs(outputFolder + "/TRAIN/")
+        filePathSaveSingleImagesWithPreds = outputFolder + "/TRAIN/" + "_batch_" + str(i)
+        PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch, 
+                                        realValuesDenorm, predictedValuesDenorm, 
+                                        currentOutputSingleValuesImagesBatch, predictedValuesBatch,
+                                        filePathSaveSingleImagesWithPreds)
         
         # Optimize 
         optimizer.zero_grad()
@@ -191,7 +198,7 @@ for n in range(configHolder.config['epochs']):
         
         del currentInputImagesBatch, currentInputSingleValuesBatch, currentOutputSingleValuesImagesBatch
         del predictedValuesBatch, predictedValuesBatchDenorm
-        del predictedValuesNorm, realValuesNorm
+        del predictedValuesDenorm, realValuesDenorm
         del loss, denormError
         
         if device.type == "cuda":
@@ -247,8 +254,17 @@ for n in range(configHolder.config['epochs']):
                                                                               dataExtractorValidation.batch_size)
             
             # Denormalized error (just for plotting and getting real range estimation)
-            denormError, predictedValuesNorm, realValuesNorm = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
+            denormError, predictedValuesDenorm, realValuesDenorm = CNN.CalculateDenormalizedError(predictedValuesBatch, currentOutputSingleValuesImagesBatch, 
                                                          dataExtractorValidation.batch_size)
+            
+            # Printing all the predictions, with all the information given above
+            if not os.path.exists(outputFolder + "/VAL/"):
+                 os.makedirs(outputFolder + "/VAL/")
+            filePathSaveSingleImagesWithPreds = outputFolder + "/VAL/" + "_batch_" + str(i)
+            PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch, 
+                                            realValuesDenorm, predictedValuesDenorm, 
+                                            currentOutputSingleValuesImagesBatch, predictedValuesBatch,
+                                            filePathSaveSingleImagesWithPreds)
             
             # Append loss in summary
             summaryCurrentEpochValidation.AppendValueInSummary('MSE_loss', loss.cpu().detach().numpy())
@@ -262,7 +278,7 @@ for n in range(configHolder.config['epochs']):
             
             del currentInputImagesBatch, currentInputSingleValuesBatch, currentOutputSingleValuesImagesBatch
             del predictedValuesBatch, predictedValuesBatchDenorm
-            del predictedValuesNorm, realValuesNorm
+            del predictedValuesDenorm, realValuesDenorm
             del loss, denormError
             
             if device.type == "cuda":
