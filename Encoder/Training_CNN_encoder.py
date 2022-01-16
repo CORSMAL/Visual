@@ -13,6 +13,8 @@ from Models import CNN_encoder
 from Models import DataExtractor as DE
 from Models import PlotGraphs_utils as PG
 
+from Models import GradientFlowChecker as GFC 
+
 from PIL import Image,ImageDraw
 
 import numpy as np
@@ -143,6 +145,8 @@ for n in range(configHolder.config['epochs']):
     # Put the current learning rate in the summary
     summaryCurrentEpochTraining.AppendValueInSummary('learning_rates', learningRate)  
     
+    list_of_names_training_parameters = list(CNN.named_parameters())
+    
     # Looping over the number of batches
     for i in range(dataExtractorTraining.numberOfBatches):
         
@@ -179,10 +183,14 @@ for n in range(configHolder.config['epochs']):
                                         realValuesDenorm, predictedValuesDenorm, 
                                         currentOutputSingleValuesImagesBatch, predictedValuesBatch,
                                         filePathSaveSingleImagesWithPreds)
-        
+
         # Optimize 
         optimizer.zero_grad()
         loss.backward()       
+        
+        GFC.plot_and_save_grad_flow(named_parameters = list_of_names_training_parameters,
+                                    fileName         = outputFolder + '/TRAIN/GRADIENT_KF_' + 'epoch_' + str(n) + '_batch_' + str(i) +'.png')
+        
         torch.nn.utils.clip_grad_norm_(CNN.parameters(), configHolder.config['max_grad_norm'])
         optimizer.step()
         
