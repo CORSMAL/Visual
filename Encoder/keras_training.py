@@ -8,7 +8,8 @@ import glob
 from data_loader import image_labels_generator
 from keras_flops import get_flops
 import os
-
+import cv2
+import numpy as np
 
 def get_callbacks(model_name, log_dir):
     callb = [
@@ -48,6 +49,7 @@ def get_regression_model(back_model):
                             kernel_size=(1, 1),
                             strides=(1, 1),
                             padding='valid')(x)
+    x = keras.layers.Flatten()(x)
     model = Model(inputs=inputs, outputs=x)
     return model
 
@@ -63,7 +65,7 @@ back_model = MobileNetV3Small(input_shape=input_shape,
                               pooling='max',
                               dropout_rate=0.2,
                               classifier_activation='softmax')
-
+back_model.save("fake.h5")
 model = get_regression_model(back_model)
 model.summary()
 flops = get_flops(model, batch_size=1)
@@ -71,6 +73,9 @@ print(f"FLOPS: {flops / 10 ** 9:.05} G")
 model.compile(optimizer="adam",
               loss=tf.keras.losses.MeanSquaredError(),
               metrics=['mse'])
+model.save("complete.h5")
+
+
 train_images = "C:\\Users\\Tommy\\Downloads\\fold_0\\rgb\\train"
 train_size = len(glob.glob(os.path.join(train_images, "*.png")))
 train_annotations = "C:\\Users\\Tommy\\Downloads\\annotations_train_0.json"
