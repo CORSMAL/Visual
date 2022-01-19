@@ -296,4 +296,7 @@ folders = ["rgb", "mask", "depth"]
 for id in id_list:
     for f in folders:
         path_to_folder = os.path.join(path_to_dir, f)
-        os.remove(os.path.join(path_to_folder, id))
+        try:
+            os.remove(os.path.join(path_to_folder, id))
+        except IOError as e:
+            print("Unable to remove file. %s" % e)

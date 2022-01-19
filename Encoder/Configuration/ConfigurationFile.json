@@ -8,7 +8,7 @@
   "number_of_neurons_final_FC": "1",
   "stride": "2",
   "batch_size": 15,
-  "learning_rate": 0.0002,
+  "learning_rate": 0.001,
   "max_grad_norm": 1,
   "epochs": 100,
   "decay_rate": 0.98,

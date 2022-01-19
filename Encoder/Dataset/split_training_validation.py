@@ -67,9 +67,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='split_training_validation',
                                      usage='%(prog)s --path_to_annotations <PATH_TO_ANN> --path_to_src_dir <PATH_TO_SRC_DIR>')
     parser.add_argument('--path_to_annotations', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/annotations.json")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/annotations.json")
     parser.add_argument('--path_to_src_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/rgb")
     args = parser.parse_args()
 
     # Assertions

@@ -25,7 +25,7 @@ path_to_dest = "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/datas
 transform_flip = T.Compose([
                 T.RandomHorizontalFlip(),
                 T.RandomVerticalFlip(),
-                T.RandomRotation(degrees=(0, 270), expand=True, interpolation=InterpolationMode.NEAREST),
+                T.RandomRotation(degrees=(0, 270), expand=True, interpolation=InterpolationMode.BILINEAR),
             ])
 
 # Load annotations

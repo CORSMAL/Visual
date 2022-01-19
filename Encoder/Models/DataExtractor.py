@@ -4,6 +4,7 @@ import os
 import torch
 import glob
 import numpy as np
+import cv2
 from PIL import Image
 import random
 import torchvision.transforms.functional as F
@@ -127,8 +128,11 @@ class DataExtractor(object):
         #     transforms.Resize((self.x_size, self.y_size)),
         #     transforms.ToTensor(),
         # ])
+
         transform = transforms.Compose([
-            #BinaryImage(),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.RandomRotation(degrees=(0, 90), expand=True, interpolation=F.InterpolationMode.BILINEAR),
             SquarePad(),
             transforms.Resize((self.x_size, self.y_size)),
             transforms.ToTensor(),
@@ -139,11 +143,12 @@ class DataExtractor(object):
         # for img in glob.glob(pathImagesFile + "/" + "*.png"):
         for i in range(0, len(glob.glob(pathImagesFile + "/" + "*.png"))):
             img = os.path.join(pathImagesFile, annotationsHolder.config['annotations'][i]['image_name'])
+
             imgCurr = Image.open(img)
             imgCurrTransformed = transform(imgCurr)
 
             # Check resize visually
-            # cv2.imshow("", imgCurrTransformed.numpy().transpose(1, 2, 0))
+            # cv2.imshow("", imgCurrTransformed.numpy().transpose(1, 2, 0)[:,:,::-1])
             # cv2.waitKey(0)
 
             inputImages[countInImageFolder, :, :, :] = imgCurrTransformed
