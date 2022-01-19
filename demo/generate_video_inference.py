@@ -1,9 +1,9 @@
-""" This script generates the final predictions.
+""" This script generates the final predictions in csv file.
 In the following the steps:
-1. From every video, sample a frame every tot (based on the parameter).
-2. For every frame run instance segmentation model and retrieve bounding boxes, masks, scores for the selected classes. Discard frames without detections.
-3. For each detected object select the k nearest objects
-4. Run Encoder on the last k nearest objects and average the predictions.
+1. From every video, sample one frame and then skip 'offset' frames.
+2. For every sampled frame, run instance segmentation model and retrieve bounding boxes, masks, scores for the selected classes. Discard frames without detections.
+3. For each detected object select the k nearest objects leveraging the depth map and computing the average distance.
+4. Run Encoder on the last k nearest objects and average the k predictions.
 """
 
 import argparse
@@ -41,7 +41,7 @@ def compute_average(path_to_gt, col_name):
 def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
     # TODO: set offset
     offset = 1  # Sample one every offset frames
-    # TODO:set mins and maxs
+    # TODO: set mins and maxs based on training data
     minAverageDistance, maxAverageDistance, minMass, maxMass = [276.0, 1534.06, 2.0, 134.0]
     minValuesOutput = torch.tensor(minMass)
     maxValuesOutput = torch.tensor(maxMass)
@@ -77,8 +77,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                                       number_of_cameras=configHolder.config['number_of_cameras'],
                                       minValuesOutput=minValuesOutput,
                                       maxValuesOutput=maxValuesOutput)
-    encoder.load_state_dict(
-        torch.load(os.path.join(project_dir, "Encoder/CNN_27.torch")))
+    # encoder.load_state_dict(torch.load(os.path.join(project_dir, "Encoder/CNN_27.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -198,9 +197,10 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                 inputSingleValues[j, 0] = ar_w
                 inputSingleValues[j, 1] = ar_h
                 inputSingleValues[j, 2] = (avg_d - minAverageDistance) / (maxAverageDistance - minAverageDistance)
-                # perform final prediction
-                predictedValues = encoder(inputImages, inputSingleValues)
-                pred = encoder.AveragePredictions(encoder.CalculateOutputValueDenormalized(predictedValues, k))
+            # perform final prediction
+            predictedValues = encoder(inputImages, inputSingleValues)
+            predictedValuesDenorm = torch.clamp(encoder.CalculateOutputValueDenormalized(predictedValues, k), min=0)
+            pred = encoder.AveragePredictions(predictedValuesDenorm).detach().numpy()
         csv_res.fill_entry('Container mass', int(pred))
         csv_res.fill_other_entries(['Container capacity',  # 'Container mass',\
                                     'Filling mass', 'None', 'Pasta', 'Rice', 'Water', 'Filling type', 'Empty', \
@@ -210,7 +210,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
         csv_res.fill_entry('Execution time', round(elapsed_time,2))
         video_cap.release()
 
-    csv_res.save_csv("predictions.json")
+    csv_res.save_csv(os.path.join(os.path.dirname(__file__),"predictions.csv"))
     cv2.destroyAllWindows()
 
 
@@ -219,9 +219,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_training_set',
                                      usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR> --path_to_ann <PATH_TO_ANN>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/prova/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/prova/depth")
     parser.add_argument('--path_to_ann', type=str,
                         default="/home/sealab-ws/PycharmProjects/Corsmal_challenge/CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.csv")
     args = parser.parse_args()
