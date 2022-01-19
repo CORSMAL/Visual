@@ -1,4 +1,4 @@
-""" This script splits data into training and validation set based on a perrrrcentage value """
+""" This script splits data into training and validation set based on a percentage value """
 import argparse
 import shutil
 import os
@@ -57,7 +57,7 @@ def retrieve_indices(num_samples, train_perc):
 
 if __name__ == '__main__':
     # Parse arguments
-    parser = argparse.ArgumentParser(prog='generate_kfold',
+    parser = argparse.ArgumentParser(prog='split_tranining_validation_random',
                                      usage='%(prog)s --path_to_annotations <PATH_TO_ANN> --path_to_src_dir <PATH_TO_SRC_DIR>')
     parser.add_argument('--path_to_annotations', type=str,
                         default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/bicchieri/annotations.json")
