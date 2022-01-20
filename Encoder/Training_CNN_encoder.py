@@ -9,7 +9,6 @@ import torch
 from Models import ConfigurationHolder as CH
 from Models import SummaryHolder       as SH
 from Models import SummaryHolderLossesAcrossEpochs       as SHLAE
-from Models import CNN_encoder
 from Models import DataExtractor as DE
 from Models import PlotGraphs_utils as PG
 
@@ -21,6 +20,14 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from torchvision import transforms
+
+###############################################################################
+CNN_selection = 1 # 0 = original one, 1 = one with pooling
+
+if CNN_selection == 0:
+    from Models import CNN_encoder
+elif CNN_selection == 1:
+    from Models import CNN_encoder_pooling as CNN_encoder
 
 ###############################################################################
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -105,15 +112,19 @@ oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatche
 ###############################################################################
     
 # Initialize CNN and print it
-CNN = CNN_encoder.CNN_encoder(image_size     = configHolder.config['x_size'], 
-                              dim_filters    = configHolder.config['dim_filters'],
-                              kernel         = configHolder.config['kernels_size'],
-                              stride         = configHolder.config['stride'], 
-                              number_of_neurons_middle_FC = configHolder.config['number_of_neurons_middle_FC'],
-                              number_of_neurons_final_FC  = configHolder.config['number_of_neurons_final_FC'], 
-                              number_of_cameras           = configHolder.config['number_of_cameras'],
-                              minValuesOutput      = dataExtractorTraining.minValuesOutput,
-                              maxValuesOutput      = dataExtractorTraining.maxValuesOutput)
+if CNN_selection == 0:
+    CNN = CNN_encoder.CNN_encoder(image_size     = configHolder.config['x_size'], 
+                                  dim_filters    = configHolder.config['dim_filters'],
+                                  kernel         = configHolder.config['kernels_size'],
+                                  stride         = configHolder.config['stride'], 
+                                  number_of_neurons_middle_FC = configHolder.config['number_of_neurons_middle_FC'],
+                                  number_of_neurons_final_FC  = configHolder.config['number_of_neurons_final_FC'], 
+                                  number_of_cameras           = configHolder.config['number_of_cameras'],
+                                  minValuesOutput      = dataExtractorTraining.minValuesOutput,
+                                  maxValuesOutput      = dataExtractorTraining.maxValuesOutput)
+elif CNN_selection == 1:
+    CNN = CNN_encoder.CNN_encoder(minValuesOutput      = dataExtractorTraining.minValuesOutput,
+                                  maxValuesOutput      = dataExtractorTraining.maxValuesOutput)
 CNN.print()
     
 ###############################################################################
