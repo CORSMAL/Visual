@@ -1,8 +1,8 @@
 {
   "device": "cpu",
-  "images_folder_training": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/rgb",
-  "annotations_folder_training": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/annotations.json",
-  "images_folder_validation": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/rgb_validation",
-  "annotations_folder_validation": "C:/Users/giulia.slavic/Documents/CORSMAL/prova/annotations_validation.json",
-  "output_folder": "C:/Users/giulia.slavic/Documents/CORSMAL/OUTPUTS"
+  "images_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/train",
+  "annotations_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/annotations_train.json",
+  "images_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/val",
+  "annotations_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/annotations_val.json",
+  "output_folder": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/OUTPUTS"
 }

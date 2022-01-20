@@ -18,7 +18,7 @@ from Encoder.Models import ConfigurationHolder as CH
 from Encoder.Dataset.select_last_k_frames import SelectLastKFrames
 from Encoder.Models import CNN_encoder
 from utils.csv_utils import CsvResults
-from utils.utils import get_outputs, get_filenames, filter_results
+from utils.utils import get_outputs, get_filenames, filter_results, draw_segmentation_map
 from torchvision.transforms import transforms as transforms
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 from Encoder.Models.DataExtractor import SquarePad
@@ -109,7 +109,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
             if ret:
                 # convert to RGB
                 rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
-                # orig_frame = bgr_frame.copy()
+                orig_frame = bgr_frame.copy()
                 # transform the image
                 rgb_frame = transform(rgb_frame)
                 # add a batch dimension
