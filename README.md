@@ -13,6 +13,7 @@ A brief description of the method:
 * [Installation](#installation)
 * [Instructions](#instructions)
 * [Demo](#demo)
+* [Data format](#data-format)
 * [Contacts](#contacts)
 * [License](#license)
 
