@@ -88,17 +88,17 @@ oneImageBatchFromDataExtractorTraining = dataExtractorTraining.inputImagesBatche
 
 # Checking correspondance between images and annotations.
 
-chosen_batch = 5
-chosen_value = 0
+# chosen_batch = 5
+# chosen_value = 0
+#
+# inputImagesBatched        = dataExtractorTraining.inputImagesBatched[chosen_batch, chosen_value]
+# inputSingleValuesBatched  = dataExtractorTraining.inputSingleValuesBatched[chosen_batch, chosen_value]
+# outputSingleValuesBatched = dataExtractorTraining.outputSingleValuesBatched[chosen_batch, chosen_value]
+#
+# print('Inputs: ' + str(inputSingleValuesBatched))
+# print('Outputs: ' + str(outputSingleValuesBatched))
 
-inputImagesBatched        = dataExtractorTraining.inputImagesBatched[chosen_batch, chosen_value]
-inputSingleValuesBatched  = dataExtractorTraining.inputSingleValuesBatched[chosen_batch, chosen_value]
-outputSingleValuesBatched = dataExtractorTraining.outputSingleValuesBatched[chosen_batch, chosen_value]
-
-print('Inputs: ' + str(inputSingleValuesBatched))
-print('Outputs: ' + str(outputSingleValuesBatched))
-
-plt.imshow( inputImagesBatched.permute(1, 2, 0) )
+# plt.imshow( inputImagesBatched.permute(1, 2, 0) )
 
 
 
@@ -176,20 +176,20 @@ for n in range(configHolder.config['epochs']):
                                                      dataExtractorTraining.batch_size)
         
         # Printing all the predictions, with all the information given above
-        if not os.path.exists(outputFolder + "/TRAIN/"):
-             os.makedirs(outputFolder + "/TRAIN/")
-        filePathSaveSingleImagesWithPreds = outputFolder + "/TRAIN/" + "_batch_" + str(i)
-        PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch, 
-                                        realValuesDenorm, predictedValuesDenorm, 
-                                        currentOutputSingleValuesImagesBatch, predictedValuesBatch,
-                                        filePathSaveSingleImagesWithPreds)
+        # if not os.path.exists(outputFolder + "/TRAIN/"):
+        #      os.makedirs(outputFolder + "/TRAIN/")
+        # filePathSaveSingleImagesWithPreds = outputFolder + "/TRAIN/" + "_batch_" + str(i)
+        # PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch,
+        #                                 realValuesDenorm, predictedValuesDenorm,
+        #                                 currentOutputSingleValuesImagesBatch, predictedValuesBatch,
+        #                                 filePathSaveSingleImagesWithPreds)
 
         # Optimize 
         optimizer.zero_grad()
         loss.backward()       
         
-        GFC.plot_and_save_grad_flow(named_parameters = list_of_names_training_parameters,
-                                    fileName         = outputFolder + '/TRAIN/GRADIENT_KF_' + 'epoch_' + str(n) + '_batch_' + str(i) +'.png')
+        # GFC.plot_and_save_grad_flow(named_parameters = list_of_names_training_parameters,
+        #                             fileName         = outputFolder + '/TRAIN/GRADIENT_KF_' + 'epoch_' + str(n) + '_batch_' + str(i) +'.png')
         
         torch.nn.utils.clip_grad_norm_(CNN.parameters(), configHolder.config['max_grad_norm'])
         optimizer.step()
@@ -266,13 +266,13 @@ for n in range(configHolder.config['epochs']):
                                                          dataExtractorValidation.batch_size)
             
             # Printing all the predictions, with all the information given above
-            if not os.path.exists(outputFolder + "/VAL/"):
-                 os.makedirs(outputFolder + "/VAL/")
-            filePathSaveSingleImagesWithPreds = outputFolder + "/VAL/" + "_batch_" + str(i)
-            PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch, 
-                                            realValuesDenorm, predictedValuesDenorm, 
-                                            currentOutputSingleValuesImagesBatch, predictedValuesBatch,
-                                            filePathSaveSingleImagesWithPreds)
+            # if not os.path.exists(outputFolder + "/VAL/"):
+            #      os.makedirs(outputFolder + "/VAL/")
+            # filePathSaveSingleImagesWithPreds = outputFolder + "/VAL/" + "_batch_" + str(i)
+            # PG.PrintImagesWithInputsAndPredictions(currentInputImagesBatch, currentInputSingleValuesBatch,
+            #                                 realValuesDenorm, predictedValuesDenorm,
+            #                                 currentOutputSingleValuesImagesBatch, predictedValuesBatch,
+            #                                 filePathSaveSingleImagesWithPreds)
             
             # Append loss in summary
             summaryCurrentEpochValidation.AppendValueInSummary('MSE_loss', loss.cpu().detach().numpy())
