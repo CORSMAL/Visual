@@ -16,11 +16,14 @@ import numpy as np
 from torchsummary import summary
 from torchvision.utils import save_image
 
-from Models import SummaryHolder                   as SH
-from Models import SummaryHolderLossesAcrossEpochs as SHLAE
-from Models import Model
-from Models import Exceptions
-
+# from Models import SummaryHolder                   as SH
+# from Models import SummaryHolderLossesAcrossEpochs as SHLAE
+# from Models import Model
+# from Models import Exceptions
+from Encoder.Models import SummaryHolder                   as SH
+from Encoder.Models import SummaryHolderLossesAcrossEpochs as SHLAE
+from Encoder.Models import Model
+from Encoder.Models import Exceptions
 ###############################################################################
 
 class CNN_encoder(Model.Model):

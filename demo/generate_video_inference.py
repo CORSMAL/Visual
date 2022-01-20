@@ -38,11 +38,15 @@ def compute_average(path_to_gt, col_name):
     return int(cc_avg)
 
 
-def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
+def generate_data(path_to_video_dir, path_to_dpt_dir):
     # TODO: set offset
     offset = 1  # Sample one every offset frames
     # TODO:set mins and maxs
-    minAverageDistance, maxAverageDistance, minMass, maxMass = [276.0, 1534.06, 2.0, 134.0]
+    minAverageDistance, maxAverageDistance, \
+    minRatioWidth, maxRatioWidth, \
+    minRatioHeight, maxRatioHeight, \
+    minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
+
     minValuesOutput = torch.tensor(minMass)
     maxValuesOutput = torch.tensor(maxMass)
 
@@ -63,6 +67,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
     path_to_rgb_video = get_filenames(path_to_video_dir, ".mp4")
     path_to_rgb_video.sort()
     project_dir = os.path.dirname(os.path.dirname(__file__))
+    path_to_ann = os.path.join(os.path.dirname(__file__), 'ccm_train_annotation.csv')
     pathConfigurationFile = os.path.join(project_dir, 'Encoder/Configuration/ConfigurationFile.json')
     configHolder = CH.ConfigurationHolder()
     configHolder.LoadConfigFromJSONFile(pathConfigurationFile)
@@ -78,7 +83,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                                       minValuesOutput=minValuesOutput,
                                       maxValuesOutput=maxValuesOutput)
     encoder.load_state_dict(
-        torch.load(os.path.join(project_dir, "Encoder/CNN_27.torch")))
+        torch.load(os.path.join(project_dir, "demo/CNN_77.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -152,8 +157,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                     # print("average distance: {}".format(avg_d))
 
                     # provide feedback
-                    print("Class: {}  \t confidence: {:.2}  \t average distance: {:.2f}mm".format(coco_names[cls[i]],
-                                                                                                  scores[i], avg_d))
+                    # print("Class: {}  \t confidence: {:.2}  \t average distance: {:.2f}mm".format(coco_names[cls[i]],
+                    #                                                                               scores[i], avg_d))
 
                     # crop RGB
                     temp_rgb = im.copy()
@@ -195,12 +200,15 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                 # Retrieve input values
                 [_, _, ar_w, ar_h, avg_d] = algo.selected_predictions[j]
 
-                inputSingleValues[j, 0] = ar_w
-                inputSingleValues[j, 1] = ar_h
+                inputSingleValues[j, 0] = (ar_w - minRatioWidth) / (maxRatioWidth - minRatioWidth)
+                inputSingleValues[j, 1] = (ar_h - minRatioHeight) / (maxRatioHeight - minRatioHeight)
                 inputSingleValues[j, 2] = (avg_d - minAverageDistance) / (maxAverageDistance - minAverageDistance)
-                # perform final prediction
-                predictedValues = encoder(inputImages, inputSingleValues)
-                pred = encoder.AveragePredictions(encoder.CalculateOutputValueDenormalized(predictedValues, k))
+            # perform final prediction
+            predictedValues = encoder(inputImages, inputSingleValues)
+            predictedValuesDenorm = torch.clamp(encoder.CalculateOutputValueDenormalized(predictedValues, k), min=0)
+            pred = encoder.AveragePredictions(predictedValuesDenorm).detach().numpy()
+        print("Prediction: {}".format(int(pred)))
+        print("##############")
         csv_res.fill_entry('Container mass', int(pred))
         csv_res.fill_other_entries(['Container capacity',  # 'Container mass',\
                                     'Filling mass', 'None', 'Pasta', 'Rice', 'Water', 'Filling type', 'Empty', \
@@ -210,20 +218,18 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
         csv_res.fill_entry('Execution time', round(elapsed_time,2))
         video_cap.release()
 
-    csv_res.save_csv("predictions.json")
+    csv_res.save_csv("Visual_predictions.csv")
     cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(prog='generate_training_set',
-                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR> --path_to_ann <PATH_TO_ANN>')
+                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
-    parser.add_argument('--path_to_ann', type=str,
-                        default="/home/sealab-ws/PycharmProjects/Corsmal_challenge/CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.csv")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
     args = parser.parse_args()
 
     # Assertions
@@ -231,10 +237,8 @@ if __name__ == '__main__':
     assert os.path.exists(args.path_to_video_dir), "path_to_video_dir does not exist"
     assert args.path_to_dpt_dir is not None, "Please, provide path to depth frames directory"
     assert os.path.exists(args.path_to_dpt_dir), "path_to_dpt_dir does not exist"
-    assert args.path_to_ann is not None, "Please, provide path to annotation file"
-    assert os.path.exists(args.path_to_ann), "path_to_ann does not exist"
 
     # Generate data
-    generate_data(args.path_to_video_dir, args.path_to_dpt_dir, args.path_to_ann)
+    generate_data(args.path_to_video_dir, args.path_to_dpt_dir)
 
     print('Finished!')
