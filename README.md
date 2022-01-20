@@ -28,7 +28,7 @@ The name of the main libraries and their versions are reported in the following 
 The file *requirements.txt* reports all libraries and their versions. To install them the following code snippet can be used:
 
     # Create conda environment
-    conda create --name CCM python=3.8 # or conda create -n CCM python==3.8
+    conda create --name CCM python=3.8 # or conda create -n CCM python=3.8
     conda activate CCM
     
     # Install libraries
