@@ -16,7 +16,6 @@ import time
 import pandas as pd
 from Encoder.Models import ConfigurationHolder as CH
 from Encoder.Dataset.select_last_k_frames import SelectLastKFrames
-from Encoder.Models import CNN_encoder
 from utils.csv_utils import CsvResults
 from utils.utils import get_outputs, get_filenames, filter_results, draw_segmentation_map
 from torchvision.transforms import transforms as transforms
@@ -27,9 +26,16 @@ import torchvision.transforms.functional as F
 
 transform_enc = transforms.Compose([
     SquarePad(),
-    transforms.Resize((224, 224), interpolation=F.InterpolationMode.BILINEAR),
+    transforms.Resize((112, 112), interpolation=F.InterpolationMode.BILINEAR),
     transforms.ToTensor(),
 ])
+
+CNN_selection = 1  # 0 = original one, 1 = one with pooling
+
+if CNN_selection == 0:
+    from Encoder.Models import CNN_encoder
+elif CNN_selection == 1:
+    from Encoder.Models import CNN_encoder_pooling as CNN_encoder
 
 
 def compute_average(path_to_gt, col_name):
@@ -73,7 +79,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     configHolder.LoadConfigFromJSONFile(pathConfigurationFile)
 
     # Initialize CNN and print it
-    encoder = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
+    if CNN_selection == 0:
+        encoder = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
                                       dim_filters=configHolder.config['dim_filters'],
                                       kernel=configHolder.config['kernels_size'],
                                       stride=configHolder.config['stride'],
@@ -82,8 +89,15 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                                       number_of_cameras=configHolder.config['number_of_cameras'],
                                       minValuesOutput=minValuesOutput,
                                       maxValuesOutput=maxValuesOutput)
-    encoder.load_state_dict(
-        torch.load(os.path.join(project_dir, "demo/CNN_77.torch")))
+    elif CNN_selection == 1:
+        encoder = CNN_encoder.CNN_encoder(minValuesOutput=minValuesOutput,
+                                      maxValuesOutput=maxValuesOutput)
+    if CNN_selection == 0:
+        encoder.load_state_dict(
+            torch.load(os.path.join(project_dir, "demo/CNN_77.torch")))
+    elif CNN_selection == 1:
+        encoder.load_state_dict(
+            torch.load(os.path.join(project_dir, "demo/CNN_152.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -191,7 +205,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
             images = algo.selected_rgb_patches
             k = len(images)
             inputImages = torch.zeros(k, 3,
-                                      224, 224)
+                                      112, 112)
             inputSingleValues = torch.zeros(k, 3)
             for j in range(0, k):
                 imagesCurr = Image.fromarray(images[j])
@@ -217,10 +231,10 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                                     'Half-full', 'Full', 'Filling level', 'Width at the top', 'Width at the bottom', \
                                     'Height', 'Object safety', 'Distance', 'Angle difference'], -1)
         elapsed_time = time.time() - start_time
-        csv_res.fill_entry('Execution time', round(elapsed_time,2))
+        csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv("Visual_predictions.csv")
+    csv_res.save_csv("Visual_publ_test_submission_pool.csv")
     cv2.destroyAllWindows()
 
 
@@ -229,9 +243,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_training_set',
                                      usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
     args = parser.parse_args()
 
     # Assertions
