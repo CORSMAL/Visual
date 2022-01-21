@@ -275,7 +275,7 @@ id_list = [
     "000607_4.png",
     "000667_4.png"]
 folders = ["rgb", "mask", "depth"]
-
+print(len(id_list)/3408)
 for id in id_list:
     for f in folders:
         path_to_folder = os.path.join(path_to_dir, f)

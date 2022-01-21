@@ -7,7 +7,7 @@ import torch
 import cv2
 
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
-
+# from coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 # create a different color for each class
 COLORS = np.random.uniform(0, 255, size=(len(coco_names), 3))
 

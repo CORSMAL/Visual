@@ -121,11 +121,13 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                 # result = draw_segmentation_map(orig_frame, masks, boxes, cls, scores)
                 # visualize the image
                 # cv2.imshow('Segmented image', result)
+                # cv2.imwrite(os.path.join("/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/segmet","{}.png".format(counter)), result)
 
                 # load depth image
                 dpt_im = cv2.imread(depth_frames[counter], -1)
                 im = cv2.cvtColor(bgr_frame.copy(), cv2.COLOR_BGR2RGB)
-                # cv2.imshow("depth", dpt_im)
+                # a = (dpt_im/2000*255).astype(np.uint8)
+                # cv2.imshow("depth", a)
                 # iterate through detections in the current frame
                 for i in range(0, len(cls)):
                     [xmin, ymin] = boxes[i][0]
@@ -227,9 +229,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_training_set',
                                      usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth")
     args = parser.parse_args()
 
     # Assertions
