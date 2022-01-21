@@ -55,31 +55,32 @@ The file *requirements.txt* reports all libraries and their versions. To install
 2. Run *demo/generate_video_inference.py* passing as arguments the path to the directory of RGB (.mp4) videos and depth files (.png).  
 
 ## Demo
+*demo/generate_video_inference.py* runs the demo of the proposed method and creates the submission .csv file.
 
 ### Running arguments
-
+The running arguments of the python demo are:
+* `path_to_video_dir`: path to the directory containing RGB .mp4 videos
+* `path_to_dpt_dir`: path to the directory containing the depth .png images
+These arguments are loaded as strings, hence the inverted commas must be used e.g. "home/dataset/rgb_images".
 
 ### Running examples
-
+    # Run demo
+    python demo/generate_video_inference.py --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>  
 
 
 ## Data format
-
-
 ### Input
-
+The proposed method uses both RGB and depth images, in particular: the detection/segmentation model uses RGB, the 5 candidate selection uses RGB, masks, depth, and the encoder model uses RGB images.  
 
 ### Output
-
+The output of final stage of the encoder is a float value in range [0, 1]. In the demo is shown how to provide the output in the appropriate range.
 
 ## Contacts
-
 If you have any further enquiries, question, or comments, please contact <email>XXXX</email>. 
 If you would like to file a bug report or a feature request, use the Github issue tracker. 
 
 
 ## License
-
 This work is licensed under the MIT License.  To view a copy of this license, see
 [LICENSE](LICENSE).
 
