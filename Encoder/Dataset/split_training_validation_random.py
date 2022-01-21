@@ -1,10 +1,10 @@
-""" This script splits data into training and validation set based on a prcentage value """
+""" This script splits data into training and validation set based on a percentage value """
 import argparse
 import shutil
 import os
 from random import random
 import random
-import glob
+
 from utils.annotation_parser import JsonParser
 from utils.json_utils import fill_annotation, save_json
 
@@ -23,32 +23,27 @@ def save_set(src_dir, dest_dir, annotations, indices, set):
     """
     keys = {"annotations"}
     gt_json = {key: [] for key in keys}
-    images_path = glob.glob(src_dir + "/" + "*.png")
-    images_path.sort()
-    for i in range(0, len(images_path)):
-        file_name = os.path.basename(images_path[i])
-        video_name = file_name.split("_")[0]
-        if int(video_name) in indices:
-            index = annotations.image_name.index(file_name)
-            src = os.path.join(src_dir, file_name)
-            dst = os.path.join(dest_dir, file_name)
-            try:
-                shutil.copy(src, dst)
+    for i in range(0, len(indices)):
+        file_name = annotations.image_name[indices[i]]
+        src = os.path.join(src_dir, file_name)
+        dst = os.path.join(dest_dir, file_name)
+        try:
+            shutil.copy(src, dst)
 
-                fill_annotation(gt_json,
-                                image_name=annotations.image_name[index],
-                                cont_id=annotations.container_id[index],
-                                ar_w=annotations.ar_w[index],
-                                ar_h=annotations.ar_h[index],
-                                avg_d=annotations.avg_d[index],
-                                wt=annotations.wt[index],
-                                wb=annotations.wb[index],
-                                h=annotations.height[index],
-                                cap=annotations.capacity[index],
-                                m=annotations.mass[index])
-            except IOError as e:
-                print("Unable to copy file. %s" % e)
-    save_json(os.path.join(dest_dir, "annotations_{}.json".format(set)), gt_json)
+            fill_annotation(gt_json,
+                            image_name=annotations.image_name[indices[i]],
+                            cont_id=annotations.container_id[indices[i]],
+                            ar_w=annotations.ar_w[indices[i]],
+                            ar_h=annotations.ar_h[indices[i]],
+                            avg_d=annotations.avg_d[indices[i]],
+                            wt=annotations.wt[indices[i]],
+                            wb=annotations.wb[indices[i]],
+                            h=annotations.height[indices[i]],
+                            cap=annotations.capacity[indices[i]],
+                            m=annotations.mass[indices[i]])
+        except IOError as e:
+            print("Unable to copy file. %s" % e)
+    save_json(os.path.join(os.path.curdir, "annotations_{}.json".format(set)), gt_json)
 
 
 def retrieve_indices(num_samples, train_perc):
@@ -56,20 +51,18 @@ def retrieve_indices(num_samples, train_perc):
     random.shuffle(indices)
     # Split files according to the selected percentage
     train_indices = indices[0:round(len(indices) * train_perc)]
-    train_indices.sort()
     val_indices = indices[round(len(indices) * train_perc):len(indices)]
-    val_indices.sort()
     return train_indices, val_indices
 
 
 if __name__ == '__main__':
     # Parse arguments
-    parser = argparse.ArgumentParser(prog='split_training_validation',
+    parser = argparse.ArgumentParser(prog='split_tranining_validation_random',
                                      usage='%(prog)s --path_to_annotations <PATH_TO_ANN> --path_to_src_dir <PATH_TO_SRC_DIR>')
     parser.add_argument('--path_to_annotations', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/annotations.json")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/bicchieri/annotations.json")
     parser.add_argument('--path_to_src_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/bicchieri/train_val/mask")
     args = parser.parse_args()
 
     # Assertions
@@ -102,7 +95,7 @@ if __name__ == '__main__':
         os.mkdir(val_dest_dir)
     train_perc = 0.8
     # Retrieve the indices
-    train_indices, val_indices = retrieve_indices(684, train_perc)
+    train_indices, val_indices = retrieve_indices(len(annotations.image_name), train_perc)
     # Save the training set of the current folder
     save_set(src_dir, train_dest_dir, annotations, train_indices, "train")
     # Save the validation set of the current folder
