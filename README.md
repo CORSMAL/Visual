@@ -76,7 +76,7 @@ The proposed method uses both RGB and depth images, in particular: the detection
 The output of final stage of the encoder is a float value in range [0, 1]. In the demo is shown how to provide the output in the appropriate range.
 
 ## Contacts
-If you have any further enquiries, question, or comments, please contact <email>XXXX</email>. 
+If you have any further enquiries, question, or comments, please contact <email>tommaso.apicella@edu.unige.it</email> or <email>giulia.slavic@edu.unige.it</email>. 
 If you would like to file a bug report or a feature request, use the Github issue tracker. 
 
 
