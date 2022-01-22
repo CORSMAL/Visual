@@ -29,6 +29,7 @@ A brief description of the method:
 
 ### Requirements
 The name of the main libraries and their versions are reported in the following list:
+* python=3.8
 * pytorch=1.10.1
 * torchvision=0.11.2
 * scipy=1.7.3
