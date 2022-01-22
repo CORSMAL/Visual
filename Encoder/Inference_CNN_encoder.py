@@ -96,7 +96,6 @@ elif CNN_selection == 1:
 
 CNN.load_state_dict(
     torch.load(os.path.join(project_dir, os.path.join("demo","Encoder_pool_152.torch"))))
-# summary(CNN, input_size=(3, 112, 112), batch_size=1)
 CNN.eval()
 
 ann = JsonParser()
@@ -132,11 +131,6 @@ for i in range(0, len(ann.image_name)):
         time_list.append(elapsed_time)
     annSingleValues = torch.zeros(1, 3)
     annSingleValues[0, 0] = ann.mass[i]
-    # outputSingleValues[0,0] = (ann.wt[i] - dataExtractorValidation.minWidthTop) / (dataExtractorValidation.maxWidthTop - dataExtractorValidation.minWidthTop)
-    # outputSingleValues[0,1] = (ann.wb[i] - dataExtractorValidation.minWidthBottom) / (
-    #         dataExtractorValidation.maxWidthBottom - dataExtractorValidation.minWidthBottom)
-    # outputSingleValues[0,2] = (ann.height[i] - dataExtractorValidation.minHeight) / (
-    #         dataExtractorValidation.maxHeight - dataExtractorValidation.minHeight)
     print("true: {}".format(ann.mass[i]))
     print("prediction: {}".format(
         int(max(0, CNN.CalculateOutputValueDenormalized(predictedValues, 1).cpu().detach().numpy()[0][0]))))

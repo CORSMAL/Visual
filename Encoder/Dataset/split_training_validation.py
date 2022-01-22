@@ -7,6 +7,7 @@ import random
 import glob
 from utils.annotation_parser import JsonParser
 from utils.json_utils import fill_annotation, save_json
+import numpy as np
 
 random.seed(7)
 
@@ -48,7 +49,7 @@ def save_set(src_dir, dest_dir, annotations, indices, set):
                                 m=annotations.mass[index])
             except IOError as e:
                 print("Unable to copy file. %s" % e)
-    save_json(os.path.join(dest_dir, "annotations_{}.json".format(set)), gt_json)
+    save_json(os.path.join(os.path.dirname(dest_dir), "annotations_{}.json".format(set)), gt_json)
 
 
 def retrieve_indices(num_samples, train_perc):
@@ -62,14 +63,22 @@ def retrieve_indices(num_samples, train_perc):
     return train_indices, val_indices
 
 
+def count_occurrences(images_name):
+    names = [n.split("_")[0] for n in images_name]
+    names.sort()
+    names_arr = np.array(names)
+    unique = np.unique(names_arr, return_counts=False)
+    return unique.size
+
+
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(prog='split_training_validation',
                                      usage='%(prog)s --path_to_annotations <PATH_TO_ANN> --path_to_src_dir <PATH_TO_SRC_DIR>')
     parser.add_argument('--path_to_annotations', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/annotations.json")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_2/annotations_train_2.json")
     parser.add_argument('--path_to_src_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_2/train")
     args = parser.parse_args()
 
     # Assertions
@@ -102,7 +111,8 @@ if __name__ == '__main__':
         os.mkdir(val_dest_dir)
     train_perc = 0.8
     # Retrieve the indices
-    train_indices, val_indices = retrieve_indices(684, train_perc)
+    num_samples = count_occurrences(annotations.image_name)
+    train_indices, val_indices = retrieve_indices(num_samples, train_perc)
     # Save the training set of the current folder
     save_set(src_dir, train_dest_dir, annotations, train_indices, "train")
     # Save the validation set of the current folder

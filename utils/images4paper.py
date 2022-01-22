@@ -9,11 +9,13 @@ random.seed(1)
 mode = "depth"
 if mode == "rgb":
     path_to_video_dir = "/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/rgb"
-    path_to_dest = "/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES"
+    path_to_dest = "/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/rgb"
 
     # retrieve file names
     path_to_rgb_video = get_filenames(path_to_video_dir, ".mp4")
-    ind = random.randint(a=0, b=len(path_to_rgb_video))
+    path_to_rgb_video.sort()
+    ind = 591 # random.randint(a=0, b=len(path_to_rgb_video))
+
     video_cap = cv2.VideoCapture(path_to_rgb_video[ind])
     offset = 1
     counter = 0
@@ -30,10 +32,10 @@ if mode == "rgb":
     video_cap.release()
     cv2.destroyAllWindows()
 elif mode == "depth":
-    path_to_depth_dir = "/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/depth/000137"
+    path_to_depth_dir = "/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/patches/depth"
     path_to_depth_frames = get_filenames(path_to_depth_dir, ".png")
     path_to_depth_frames.sort()
-    path_to_dest = "/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/depth"
+    path_to_dest = "/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/patches/depth"
     MAX_DIST = 2000
     for i in range(0, len(path_to_depth_frames)):
         depth_frame = cv2.imread(path_to_depth_frames[i], -1)

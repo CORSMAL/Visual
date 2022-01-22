@@ -33,7 +33,7 @@ transform_enc = transforms.Compose([
 CNN_selection = 1  # 0 = original one, 1 = one with pooling
 
 if CNN_selection == 0:
-    from Encoder.Models import CNN_encoder
+    from Encoder.Models import CNN_encoder # Change input tensor dimensions to 224 x 224 and transofrm_enc input size
 elif CNN_selection == 1:
     from Encoder.Models import CNN_encoder_pooling as CNN_encoder
 
@@ -94,10 +94,10 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                                       maxValuesOutput=maxValuesOutput)
     if CNN_selection == 0:
         encoder.load_state_dict(
-            torch.load(os.path.join(project_dir, "demo/CNN_77.torch")))
+            torch.load(os.path.join(project_dir, "demo/Encoder_77.torch")))
     elif CNN_selection == 1:
         encoder.load_state_dict(
-            torch.load(os.path.join(project_dir, "demo/CNN_152.torch")))
+            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_158.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -135,7 +135,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                 # result = draw_segmentation_map(orig_frame, masks, boxes, cls, scores)
                 # visualize the image
                 # cv2.imshow('Segmented image', result)
-                # cv2.imwrite(os.path.join("/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/segmet","{}.png".format(counter)), result)
+                # cv2.imwrite(os.path.join("/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/segmentation","{}.png".format(counter)), result)
 
                 # load depth image
                 dpt_im = cv2.imread(depth_frames[counter], -1)
@@ -234,7 +234,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
         csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv("Visual_publ_test_submission_pool.csv")
+    csv_res.save_csv("Visual_val_submission_pool_aug.csv")
     cv2.destroyAllWindows()
 
 
@@ -243,9 +243,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_training_set',
                                      usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/val/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/val/depth")
     args = parser.parse_args()
 
     # Assertions
