@@ -13,7 +13,8 @@ import cv2
 import torchvision
 import os
 import time
-import pandas as pd
+import torchvision.transforms.functional as F
+
 from Encoder.Models import ConfigurationHolder as CH
 from Encoder.Dataset.select_last_k_frames import SelectLastKFrames
 from utils.csv_utils import CsvResults
@@ -22,7 +23,7 @@ from torchvision.transforms import transforms as transforms
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 from Encoder.Models.DataExtractor import SquarePad
 from PIL import Image
-import torchvision.transforms.functional as F
+
 
 transform_enc = transforms.Compose([
     SquarePad(),
@@ -33,25 +34,37 @@ transform_enc = transforms.Compose([
 CNN_selection = 1  # 0 = original one, 1 = one with pooling
 
 if CNN_selection == 0:
-    from Encoder.Models import CNN_encoder # Change input tensor dimensions to 224 x 224 and transofrm_enc input size
+    from Encoder.Models import CNN_encoder  # Change input tensor dimensions to 224 x 224 and transofrm_enc input size
 elif CNN_selection == 1:
     from Encoder.Models import CNN_encoder_pooling as CNN_encoder
-
-
-def compute_average(path_to_gt, col_name):
-    gt = pd.read_csv(path_to_gt, sep=',')
-    cc_avg = np.average(gt[col_name].unique())
-    return int(cc_avg)
 
 
 def generate_data(path_to_video_dir, path_to_dpt_dir):
     # TODO: set offset
     offset = 1  # Sample one every offset frames
     # TODO:set mins and maxs
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
+
+    # FOLD 0
     minAverageDistance, maxAverageDistance, \
     minRatioWidth, maxRatioWidth, \
     minRatioHeight, maxRatioHeight, \
-    minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
+    minMass, maxMass = [276.0, 1534.06, 0.01, 0.45, 0.03, 0.96, 2.0, 134.0]
+
+    # FOLD 1
+    #     minAverageDistance, maxAverageDistance, \
+    #     minRatioWidth, maxRatioWidth, \
+    #     minRatioHeight, maxRatioHeight, \
+    #     minMass, maxMass = [276.0, 1523.34, 0.01, 0.45, 0.03, 0.96, 3.0, 86.0]
+
+    # FOLD 2
+    #     minAverageDistance, maxAverageDistance, \
+    #     minRatioWidth, maxRatioWidth, \
+    #     minRatioHeight, maxRatioHeight, \
+    #     minMass, maxMass = [310.14, 1534.06,  0.04,  0.38,  0.08, 0.86, 2.0, 134.0]
 
     minValuesOutput = torch.tensor(minMass)
     maxValuesOutput = torch.tensor(maxMass)
@@ -73,7 +86,6 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     path_to_rgb_video = get_filenames(path_to_video_dir, ".mp4")
     path_to_rgb_video.sort()
     project_dir = os.path.dirname(os.path.dirname(__file__))
-    path_to_ann = os.path.join(os.path.dirname(__file__), 'ccm_train_annotation.csv')
     pathConfigurationFile = os.path.join(project_dir, 'Encoder/Configuration/ConfigurationFile.json')
     configHolder = CH.ConfigurationHolder()
     configHolder.LoadConfigFromJSONFile(pathConfigurationFile)
@@ -81,23 +93,24 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     # Initialize CNN and print it
     if CNN_selection == 0:
         encoder = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
-                                      dim_filters=configHolder.config['dim_filters'],
-                                      kernel=configHolder.config['kernels_size'],
-                                      stride=configHolder.config['stride'],
-                                      number_of_neurons_middle_FC=configHolder.config['number_of_neurons_middle_FC'],
-                                      number_of_neurons_final_FC=configHolder.config['number_of_neurons_final_FC'],
-                                      number_of_cameras=configHolder.config['number_of_cameras'],
-                                      minValuesOutput=minValuesOutput,
-                                      maxValuesOutput=maxValuesOutput)
+                                          dim_filters=configHolder.config['dim_filters'],
+                                          kernel=configHolder.config['kernels_size'],
+                                          stride=configHolder.config['stride'],
+                                          number_of_neurons_middle_FC=configHolder.config[
+                                              'number_of_neurons_middle_FC'],
+                                          number_of_neurons_final_FC=configHolder.config['number_of_neurons_final_FC'],
+                                          number_of_cameras=configHolder.config['number_of_cameras'],
+                                          minValuesOutput=minValuesOutput,
+                                          maxValuesOutput=maxValuesOutput)
     elif CNN_selection == 1:
         encoder = CNN_encoder.CNN_encoder(minValuesOutput=minValuesOutput,
-                                      maxValuesOutput=maxValuesOutput)
+                                          maxValuesOutput=maxValuesOutput)
     if CNN_selection == 0:
         encoder.load_state_dict(
             torch.load(os.path.join(project_dir, "demo/Encoder_77.torch")))
     elif CNN_selection == 1:
         encoder.load_state_dict(
-            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_158.torch")))
+            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold0_94.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -199,7 +212,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                 len(algo.selected_dpt_patches) == 0 or \
                 len(algo.selected_predictions) == 0 or \
                 len(algo.selected_mask_patches) == 0:
-            pred = compute_average(path_to_ann, 'container mass')
+            pred = -1
         else:
             # Retrieve images
             images = algo.selected_rgb_patches
@@ -234,7 +247,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
         csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv("Visual_val_submission_pool_aug.csv")
+    csv_res.save_csv("Visual_val_submission_pool_aug_fold0.csv")
     cv2.destroyAllWindows()
 
 
