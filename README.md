@@ -61,7 +61,8 @@ The file *requirements.txt* reports all libraries and their versions. To install
 ### Running arguments
 The running arguments of the python demo are:
 * `path_to_video_dir`: path to the directory containing RGB .mp4 videos
-* `path_to_dpt_dir`: path to the directory containing the depth .png images
+* `path_to_dpt_dir`: path to the directory containing the depth folders containing .png images.
+The name of the video must match the name of the depth folder. 
 These arguments are loaded as strings, hence the inverted commas must be used e.g. "home/dataset/rgb_images".
 
 ### Running examples
