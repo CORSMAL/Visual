@@ -1,9 +1,9 @@
-""" This script generates the final predictions in csv file.
+""" This script generates the final predictions.
 In the following the steps:
-1. From every video, sample one frame and then skip 'offset' frames.
-2. For every sampled frame, run instance segmentation model and retrieve bounding boxes, masks, scores for the selected classes. Discard frames without detections.
-3. For each detected object select the k nearest objects leveraging the depth map and computing the average distance.
-4. Run Encoder on the last k nearest objects and average the k predictions.
+1. From every video, sample a frame every tot (based on the parameter).
+2. For every frame run instance segmentation model and retrieve bounding boxes, masks, scores for the selected classes. Discard frames without detections.
+3. For each detected object select the k nearest objects
+4. Run Encoder on the last k nearest objects and average the predictions.
 """
 
 import argparse
@@ -13,36 +13,59 @@ import cv2
 import torchvision
 import os
 import time
-import pandas as pd
+import torchvision.transforms.functional as F
+
 from Encoder.Models import ConfigurationHolder as CH
 from Encoder.Dataset.select_last_k_frames import SelectLastKFrames
-from Encoder.Models import CNN_encoder
 from utils.csv_utils import CsvResults
-from utils.utils import get_outputs, get_filenames, filter_results
+from utils.utils import get_outputs, get_filenames, filter_results, draw_segmentation_map
 from torchvision.transforms import transforms as transforms
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 from Encoder.Models.DataExtractor import SquarePad
 from PIL import Image
-import torchvision.transforms.functional as F
+
 
 transform_enc = transforms.Compose([
     SquarePad(),
-    transforms.Resize((224, 224), interpolation=F.InterpolationMode.BILINEAR),
+    transforms.Resize((112, 112), interpolation=F.InterpolationMode.BILINEAR),
     transforms.ToTensor(),
 ])
 
+CNN_selection = 1  # 0 = original one, 1 = one with pooling
 
-def compute_average(path_to_gt, col_name):
-    gt = pd.read_csv(path_to_gt, sep=',')
-    cc_avg = np.average(gt[col_name].unique())
-    return int(cc_avg)
+if CNN_selection == 0:
+    from Encoder.Models import CNN_encoder  # Change input tensor dimensions to 224 x 224 and transofrm_enc input size
+elif CNN_selection == 1:
+    from Encoder.Models import CNN_encoder_pooling as CNN_encoder
 
 
-def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
+def generate_data(path_to_video_dir, path_to_dpt_dir):
     # TODO: set offset
     offset = 1  # Sample one every offset frames
-    # TODO: set mins and maxs based on training data
-    minAverageDistance, maxAverageDistance, minMass, maxMass = [276.0, 1534.06, 2.0, 134.0]
+    # TODO:set mins and maxs
+    minAverageDistance, maxAverageDistance, \
+    minRatioWidth, maxRatioWidth, \
+    minRatioHeight, maxRatioHeight, \
+    minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
+
+    # FOLD 0
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [276.0, 1534.06, 0.01, 0.45, 0.03, 0.96, 2.0, 134.0]
+
+    # FOLD 1
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [276.0, 1523.34, 0.01, 0.45, 0.03, 0.96, 3.0, 86.0]
+
+    # FOLD 2
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [310.14, 1534.06,  0.04,  0.38,  0.08, 0.86, 2.0, 134.0]
+    #
     minValuesOutput = torch.tensor(minMass)
     maxValuesOutput = torch.tensor(maxMass)
 
@@ -68,16 +91,32 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
     configHolder.LoadConfigFromJSONFile(pathConfigurationFile)
 
     # Initialize CNN and print it
-    encoder = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
-                                      dim_filters=configHolder.config['dim_filters'],
-                                      kernel=configHolder.config['kernels_size'],
-                                      stride=configHolder.config['stride'],
-                                      number_of_neurons_middle_FC=configHolder.config['number_of_neurons_middle_FC'],
-                                      number_of_neurons_final_FC=configHolder.config['number_of_neurons_final_FC'],
-                                      number_of_cameras=configHolder.config['number_of_cameras'],
-                                      minValuesOutput=minValuesOutput,
-                                      maxValuesOutput=maxValuesOutput)
-    # encoder.load_state_dict(torch.load(os.path.join(project_dir, "Encoder/CNN_27.torch")))
+    if CNN_selection == 0:
+        encoder = CNN_encoder.CNN_encoder(image_size=configHolder.config['x_size'],
+                                          dim_filters=configHolder.config['dim_filters'],
+                                          kernel=configHolder.config['kernels_size'],
+                                          stride=configHolder.config['stride'],
+                                          number_of_neurons_middle_FC=configHolder.config[
+                                              'number_of_neurons_middle_FC'],
+                                          number_of_neurons_final_FC=configHolder.config['number_of_neurons_final_FC'],
+                                          number_of_cameras=configHolder.config['number_of_cameras'],
+                                          minValuesOutput=minValuesOutput,
+                                          maxValuesOutput=maxValuesOutput)
+    elif CNN_selection == 1:
+        encoder = CNN_encoder.CNN_encoder(minValuesOutput=minValuesOutput,
+                                          maxValuesOutput=maxValuesOutput)
+    if CNN_selection == 0:
+        encoder.load_state_dict(
+            torch.load(os.path.join(project_dir, "demo/Encoder_77.torch")))
+    elif CNN_selection == 1:
+        encoder.load_state_dict(
+            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_158.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold0_94.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold1_35.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold2_86.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -103,7 +142,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
             if ret:
                 # convert to RGB
                 rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
-                # orig_frame = bgr_frame.copy()
+                orig_frame = bgr_frame.copy()
                 # transform the image
                 rgb_frame = transform(rgb_frame)
                 # add a batch dimension
@@ -115,11 +154,13 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                 # result = draw_segmentation_map(orig_frame, masks, boxes, cls, scores)
                 # visualize the image
                 # cv2.imshow('Segmented image', result)
+                # cv2.imwrite(os.path.join("/media/sealab-ws/Hard Disk/CORSMAL challenge/IMAGES/segmentation","{}.png".format(counter)), result)
 
                 # load depth image
                 dpt_im = cv2.imread(depth_frames[counter], -1)
                 im = cv2.cvtColor(bgr_frame.copy(), cv2.COLOR_BGR2RGB)
-                # cv2.imshow("depth", dpt_im)
+                # a = (dpt_im/2000*255).astype(np.uint8)
+                # cv2.imshow("depth", a)
                 # iterate through detections in the current frame
                 for i in range(0, len(cls)):
                     [xmin, ymin] = boxes[i][0]
@@ -151,8 +192,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                     # print("average distance: {}".format(avg_d))
 
                     # provide feedback
-                    print("Class: {}  \t confidence: {:.2}  \t average distance: {:.2f}mm".format(coco_names[cls[i]],
-                                                                                                  scores[i], avg_d))
+                    # print("Class: {}  \t confidence: {:.2}  \t average distance: {:.2f}mm".format(coco_names[cls[i]],
+                    #                                                                               scores[i], avg_d))
 
                     # crop RGB
                     temp_rgb = im.copy()
@@ -177,13 +218,13 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                 len(algo.selected_dpt_patches) == 0 or \
                 len(algo.selected_predictions) == 0 or \
                 len(algo.selected_mask_patches) == 0:
-            pred = compute_average(path_to_ann, 'container mass')
+            pred = -1
         else:
             # Retrieve images
             images = algo.selected_rgb_patches
             k = len(images)
             inputImages = torch.zeros(k, 3,
-                                      224, 224)
+                                      112, 112)
             inputSingleValues = torch.zeros(k, 3)
             for j in range(0, k):
                 imagesCurr = Image.fromarray(images[j])
@@ -194,36 +235,36 @@ def generate_data(path_to_video_dir, path_to_dpt_dir, path_to_ann):
                 # Retrieve input values
                 [_, _, ar_w, ar_h, avg_d] = algo.selected_predictions[j]
 
-                inputSingleValues[j, 0] = ar_w
-                inputSingleValues[j, 1] = ar_h
+                inputSingleValues[j, 0] = (ar_w - minRatioWidth) / (maxRatioWidth - minRatioWidth)
+                inputSingleValues[j, 1] = (ar_h - minRatioHeight) / (maxRatioHeight - minRatioHeight)
                 inputSingleValues[j, 2] = (avg_d - minAverageDistance) / (maxAverageDistance - minAverageDistance)
             # perform final prediction
             predictedValues = encoder(inputImages, inputSingleValues)
             predictedValuesDenorm = torch.clamp(encoder.CalculateOutputValueDenormalized(predictedValues, k), min=0)
             pred = encoder.AveragePredictions(predictedValuesDenorm).detach().numpy()
+        print("Prediction: {}".format(int(pred)))
+        print("##############")
         csv_res.fill_entry('Container mass', int(pred))
         csv_res.fill_other_entries(['Container capacity',  # 'Container mass',\
                                     'Filling mass', 'None', 'Pasta', 'Rice', 'Water', 'Filling type', 'Empty', \
                                     'Half-full', 'Full', 'Filling level', 'Width at the top', 'Width at the bottom', \
                                     'Height', 'Object safety', 'Distance', 'Angle difference'], -1)
         elapsed_time = time.time() - start_time
-        csv_res.fill_entry('Execution time', round(elapsed_time,2))
+        csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv(os.path.join(os.path.dirname(__file__),"predictions.csv"))
+    csv_res.save_csv("Visual_val_submission_pool_aug_VERA.csv")
     cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(prog='generate_training_set',
-                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR> --path_to_ann <PATH_TO_ANN>')
+                                     usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/prova/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/prova/depth")
-    parser.add_argument('--path_to_ann', type=str,
-                        default="/home/sealab-ws/PycharmProjects/Corsmal_challenge/CORSMALChallengeEvalToolkit-master/annotations/ccm_train_annotation.csv")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
     args = parser.parse_args()
 
     # Assertions
@@ -231,10 +272,8 @@ if __name__ == '__main__':
     assert os.path.exists(args.path_to_video_dir), "path_to_video_dir does not exist"
     assert args.path_to_dpt_dir is not None, "Please, provide path to depth frames directory"
     assert os.path.exists(args.path_to_dpt_dir), "path_to_dpt_dir does not exist"
-    assert args.path_to_ann is not None, "Please, provide path to annotation file"
-    assert os.path.exists(args.path_to_ann), "path_to_ann does not exist"
 
     # Generate data
-    generate_data(args.path_to_video_dir, args.path_to_dpt_dir, args.path_to_ann)
+    generate_data(args.path_to_video_dir, args.path_to_dpt_dir)
 
     print('Finished!')

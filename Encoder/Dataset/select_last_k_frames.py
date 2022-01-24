@@ -36,6 +36,8 @@ class SelectLastKFrames:
         # prediction_list = [cls, score, ar_w, ar_h, avg_d]
         pred_list = self.prediction_list.copy()
         k = min(self.k, len(pred_list))
+        if k == 0:
+            return
         # sort distances in ascending order
         dist_array = np.asarray(pred_list)[:, 4]
         dist_array_incr = np.sort(dist_array)

@@ -1,8 +1,8 @@
 {
   "device": "cpu",
-  "images_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/fold_train_val/train",
-  "annotations_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/fold_train_val/annotations_train.json",
-  "images_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/fold_train_val/val",
-  "annotations_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/dataset_pulito/fold_train_val/annotations_val.json",
-  "output_folder": "/home/sealab-ws/PycharmProjects/Apicella_PyCharm/Visual/Encoder/OUTPUTS"
+  "images_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/train",
+  "annotations_folder_training": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/annotations_train.json",
+  "images_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/val",
+  "annotations_folder_validation": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/fold_train_val/annotations_val.json",
+  "output_folder": "/media/sealab-ws/Hard Disk/CORSMAL challenge/train_patches/OUTPUTS_pool"
 }

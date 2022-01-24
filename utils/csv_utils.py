@@ -5,10 +5,11 @@ import os
 
 
 class CsvResults:
-    def __init__(self):
+    def __init__(self, cols_headers=None):
         """ Initializes class fields.
         """
-        cols_headers = ['Configuration ID', 'Container capacity', 'Container mass', \
+        if cols_headers is None:
+            cols_headers = ['Configuration ID', 'Container capacity', 'Container mass', \
                         'Filling mass', 'None', 'Pasta', 'Rice', 'Water', 'Filling type', 'Empty', \
                         'Half-full', 'Full', 'Filling level', 'Width at the top', 'Width at the bottom', \
                         'Height', 'Object safety', 'Distance', 'Angle difference', 'Execution time']
