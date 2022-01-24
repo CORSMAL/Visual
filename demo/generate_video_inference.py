@@ -253,7 +253,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
         csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv("Visual_val_submission_pool_aug_VERA.csv")
+    csv_res.save_csv("Visual_priv_test.csv")
     cv2.destroyAllWindows()
 
 
