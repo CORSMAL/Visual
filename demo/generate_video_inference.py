@@ -43,29 +43,29 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     # TODO: set offset
     offset = 1  # Sample one every offset frames
     # TODO:set mins and maxs
-    # minAverageDistance, maxAverageDistance, \
-    # minRatioWidth, maxRatioWidth, \
-    # minRatioHeight, maxRatioHeight, \
-    # minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
-
-    # FOLD 0
     minAverageDistance, maxAverageDistance, \
     minRatioWidth, maxRatioWidth, \
     minRatioHeight, maxRatioHeight, \
-    minMass, maxMass = [276.0, 1534.06, 0.01, 0.45, 0.03, 0.96, 2.0, 134.0]
+    minMass, maxMass = [291.53, 1533.87, 0.01, 0.46, 0.03, 0.9, 2.0, 134.0]
+
+    # FOLD 0
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [276.0, 1534.06, 0.01, 0.45, 0.03, 0.96, 2.0, 134.0]
 
     # FOLD 1
-    #     minAverageDistance, maxAverageDistance, \
-    #     minRatioWidth, maxRatioWidth, \
-    #     minRatioHeight, maxRatioHeight, \
-    #     minMass, maxMass = [276.0, 1523.34, 0.01, 0.45, 0.03, 0.96, 3.0, 86.0]
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [276.0, 1523.34, 0.01, 0.45, 0.03, 0.96, 3.0, 86.0]
 
     # FOLD 2
-    #     minAverageDistance, maxAverageDistance, \
-    #     minRatioWidth, maxRatioWidth, \
-    #     minRatioHeight, maxRatioHeight, \
-    #     minMass, maxMass = [310.14, 1534.06,  0.04,  0.38,  0.08, 0.86, 2.0, 134.0]
-
+    # minAverageDistance, maxAverageDistance, \
+    # minRatioWidth, maxRatioWidth, \
+    # minRatioHeight, maxRatioHeight, \
+    # minMass, maxMass = [310.14, 1534.06,  0.04,  0.38,  0.08, 0.86, 2.0, 134.0]
+    #
     minValuesOutput = torch.tensor(minMass)
     maxValuesOutput = torch.tensor(maxMass)
 
@@ -110,7 +110,13 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
             torch.load(os.path.join(project_dir, "demo/Encoder_77.torch")))
     elif CNN_selection == 1:
         encoder.load_state_dict(
-            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold0_94.torch")))
+            torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_158.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold0_94.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold1_35.torch")))
+        # encoder.load_state_dict(
+        #     torch.load(os.path.join(project_dir, "demo/Encoder_pool_aug_fold2_86.torch")))
     encoder.eval()
     algo = SelectLastKFrames()
     csv_res = CsvResults()
@@ -247,7 +253,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
         csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
 
-    csv_res.save_csv("Visual_val_submission_pool_aug_fold0.csv")
+    csv_res.save_csv("Visual_val_submission_pool_aug_VERA.csv")
     cv2.destroyAllWindows()
 
 
@@ -256,9 +262,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='generate_training_set',
                                      usage='%(prog)s --path_to_video_dir <PATH_TO_VIDEO_DIR> --path_to_dpt_dir <PATH_TO_DPT_DIR>')
     parser.add_argument('--path_to_video_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/val/rgb")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/rgb")
     parser.add_argument('--path_to_dpt_dir', type=str,
-                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/train/view3/val/depth")
+                        default="/media/sealab-ws/Hard Disk/CORSMAL challenge/public_test/test_pub/view3/depth")
     args = parser.parse_args()
 
     # Assertions
