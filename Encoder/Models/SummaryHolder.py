@@ -60,11 +60,6 @@ class SummaryHolder(object):
         # Name of folder + file
         path_name  = outputFolder + '/' + filePrefix + key + '.mat'
         
-        print('key')
-        print(key)
-        print('currentKeyValues')
-        print(currentKeyValues)
-        
         # Plot the loss over all epochs
         sio.savemat(path_name, {key: currentKeyValues})
         
@@ -223,8 +218,11 @@ class SummaryHolder(object):
     def PerformDataReshaping3D(data, batchSize):
         
         data = np.asarray(data)
-        #data = np.squeeze(data)
+        # data = np.squeeze(data)
         
+        return data
+        
+        '''
         # Case for example of learning rate: there is a single value per epoch
         # and after using the squeeze function, data will have dimension ()
         if data.ndim == 0:
@@ -248,7 +246,7 @@ class SummaryHolder(object):
         # [number of batches, elements in batch, state dimension, state dimension]
         elif data.ndim == 4 and batchSize != 1:
             return np.reshape(data, (data.shape[0]*data.shape[1], data.shape[2], data.shape[3]))
-        
+        '''
     
         
     

@@ -8,9 +8,10 @@
 import numpy as np
 import scipy.io as sio
 
+# from Models import PlotGraphs_utils as PG
+# from Models import SummaryHolder    as SH
 from Encoder.Models import PlotGraphs_utils as PG
 from Encoder.Models import SummaryHolder    as SH
-
 ###############################################################################
 
 class SummaryHolderLossesAcrossEpochs(SH.SummaryHolder):
@@ -119,4 +120,12 @@ class SummaryHolderLossesAcrossEpochs(SH.SummaryHolder):
         # Save losses to matlab
         self.BringValuesToMatlab(outputFolder, filePrefix)
         
-        return 
+        return
+
+    def FindBestEpochValidation(self, key):
+        values_list = self.summary[key]
+        min_value = min(values_list)
+
+        min_index = values_list.index(min_value)
+
+        return min_value, min_index

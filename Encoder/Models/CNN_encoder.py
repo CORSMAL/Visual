@@ -4,14 +4,28 @@
 
 ###############################################################################
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+import torch.nn.init as init
+
+import matplotlib.pyplot as plt
+from torchvision.utils import make_grid
+
+import numpy as np
+
+from torchsummary import summary
+from torchvision.utils import save_image
+
+# from Models import SummaryHolder                   as SH
+# from Models import SummaryHolderLossesAcrossEpochs as SHLAE
+# from Models import Model
+# from Models import Exceptions
+from Encoder.Models import SummaryHolder                   as SH
+from Encoder.Models import SummaryHolderLossesAcrossEpochs as SHLAE
 from Encoder.Models import Model
 from Encoder.Models import Exceptions
-
-
 ###############################################################################
 
 class CNN_encoder(Model.Model):
@@ -39,6 +53,11 @@ class CNN_encoder(Model.Model):
         
     
     ###########################################################################
+    
+    
+
+
+    
     # Initialize the network
     def __init__(self, image_size, dim_filters, kernel, stride,
                  number_of_neurons_middle_FC, number_of_neurons_final_FC, 
@@ -48,7 +67,7 @@ class CNN_encoder(Model.Model):
         # ---------------------------------------------------------------------
         # From indications set in the configuration file
         self.number_of_cameras = number_of_cameras
-        self.image_channels    = 3*self.number_of_cameras
+        self.image_channels    = 3*self.number_of_cameras # 1
         self.image_size        = image_size
         self.minValuesOutput   = minValuesOutput
         self.maxValuesOutput   = maxValuesOutput
@@ -82,6 +101,8 @@ class CNN_encoder(Model.Model):
         # ---------------------------------------------------------------------
         # BUILDING STRUCTURE
         self.BuildCNN()
+        
+        #self.apply(weight_init)
         
         return
     
@@ -164,6 +185,7 @@ class CNN_encoder(Model.Model):
             # Input dimension
             self.layersDimensions[i+1, :] = curr_size
             
+            
         return
     
     #####
@@ -239,6 +261,7 @@ class CNN_encoder(Model.Model):
             output_channels    = self.dim_filters[i]
             
             # Define the current layer
+            
             currentLayer       = nn.Sequential(*[
                                                  nn.Conv2d(in_channels  = input_channels,
                                                            out_channels = output_channels,
@@ -246,14 +269,32 @@ class CNN_encoder(Model.Model):
                                                            padding      =  0, 
                                                            stride       = (self.stride[i], self.stride[i])),
                                                  nn.BatchNorm2d(output_channels),
-                                                 nn.LeakyReLU(0.1) 
+                                                 nn.Dropout(p = 0.2),
+                                                 nn.ReLU()
+                                                 #nn.MaxPool2d()
                                                  ])
+            '''
+            
+            currentLayer       = nn.Sequential(*[
+                                                 nn.Conv2d(in_channels  = input_channels,
+                                                           out_channels = output_channels,
+                                                           kernel_size  = (self.kernel[i], self.kernel[i]),
+                                                           padding      =  0, 
+                                                           stride       = (1, 1)),
+                                                 nn.BatchNorm2d(output_channels),
+                                                 nn.Dropout(p = 0.3),
+                                                 nn.ReLU(),
+                                                 nn.MaxPool2d(kernel_size=3)
+                                                 ])
+            '''
             
             # Add layer to the list
             encoderLayers.append(currentLayer)
             
         # Final encoder
         self.encoder = nn.Sequential(*encoderLayers)
+        
+        #self.encoder.apply(weight_init)
             
         return
        
@@ -273,12 +314,31 @@ class CNN_encoder(Model.Model):
                     
             outputDimensions    = self.number_of_neurons_middle_FC[i]
             
-            # Definition of linear layer
-            currentLayer = nn.Linear(inputDimensions, outputDimensions)
+            
+            if i == numberOfLayersMiddleFC - 1:
+            
+                # Definition of linear layer
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.BatchNorm1d(outputDimensions),
+                                                nn.Dropout(p = 0.3),
+                                                nn.ReLU()
+                                                ])
+                
+            else:
+                
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.BatchNorm1d(outputDimensions),
+                                                nn.Dropout(p = 0.3),
+                                                nn.ReLU()
+                                                ])
             
             middleFCs.append(currentLayer)
         
         self.middleFCs = nn.Sequential(*middleFCs)
+        
+        #self.middleFCs.apply(weight_init)
         
         return
     
@@ -298,12 +358,30 @@ class CNN_encoder(Model.Model):
                     
             outputDimensions    = self.number_of_neurons_final_FC[i]
             
-            # Definition of linear layer
-            currentLayer = nn.Linear(inputDimensions, outputDimensions)
+            if i == numberOfLayersFinalFC - 1:
+            
+                # Definition of linear layer
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.BatchNorm1d(outputDimensions),
+                                                nn.Dropout(p = 0.3),
+                                                nn.Sigmoid()
+                                                ])
+                
+            else:
+                
+                currentLayer  = nn.Sequential(*[
+                                                nn.Linear(inputDimensions, outputDimensions),
+                                                nn.BatchNorm1d(outputDimensions),
+                                                nn.Dropout(p = 0.3),
+                                                nn.ReLU()
+                                                ])
             
             finalFCs.append(currentLayer)
         
         self.finalFCs = nn.Sequential(*finalFCs)
+        
+        #self.finalFCs.apply(weight_init)
         
         return
     
@@ -366,7 +444,7 @@ class CNN_encoder(Model.Model):
     # INPUTS:
     # - images
     # - depthAndImageRatios
-    # OUTPUTS_T3_0:
+    # OUTPUTS:
     # - outputMiddleFCLayers
     def Encode(self, images, depthAndImageRatios):
         
@@ -392,7 +470,7 @@ class CNN_encoder(Model.Model):
     #      size_x = size_y
     # - depthAndImageRatios: (batch size * number_of_inputs_ratios)
     #      number_of_inputs_ratios = 3*number_of_cameras
-    # OUTPUTS_T3_0:
+    # OUTPUTS:
     # - predictedValues
     def forward(self, images, depthAndImageRatios):
         
@@ -436,7 +514,10 @@ class CNN_encoder(Model.Model):
         # Mean absolute error
         denormError = torch.mean(torch.mean(torch.abs(predictedValuesNorm - realValuesNorm)))
         
-        return denormError
+        return denormError, predictedValuesNorm, realValuesNorm
+
+    def AveragePredictions(self, predictedValues):
+        return torch.mean(predictedValues)
 
 
     
