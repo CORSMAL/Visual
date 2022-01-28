@@ -131,7 +131,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     ind = 0
     for _ in tqdm(range(0, len(path_to_rgb_video))):
         start_time = time.time()
-        print(os.path.basename(path_to_rgb_video[ind]))
+        # print(os.path.basename(path_to_rgb_video[ind]))
         video_cap = cv2.VideoCapture(path_to_rgb_video[ind])
         counter = 0
         # retrieve correct depth frames
@@ -250,8 +250,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
             predictedValues = encoder(inputImages, inputSingleValues)
             predictedValuesDenorm = torch.clamp(encoder.CalculateOutputValueDenormalized(predictedValues, k), min=0)
             pred = encoder.AveragePredictions(predictedValuesDenorm).detach().numpy()
-        print("Prediction: {}".format(int(pred)))
-        print("##############")
+        # print("Prediction: {}".format(int(pred)))
+        # print("##############")
         csv_res.fill_entry('Container mass', int(pred))
         csv_res.fill_other_entries(['Container capacity',  # 'Container mass',\
                                     'Filling mass', 'None', 'Pasta', 'Rice', 'Water', 'Filling type', 'Empty', \
