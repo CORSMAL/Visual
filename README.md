@@ -37,6 +37,7 @@ The name of the main libraries and their versions are reported in the following 
 * torchsummary=1.5.1
 * pandas=1.3.5
 * opencv=4.5.2
+* tqdm=4.62.3
 
 The file *requirements.txt* reports all libraries and their versions. To install them the following code snippet can be used:
 
@@ -45,7 +46,7 @@ The file *requirements.txt* reports all libraries and their versions. To install
     conda activate CCM
     
     # Install libraries
-    pip install torch torchvision scipy matplotlib torchsummary pandas
+    pip install torch torchvision scipy matplotlib torchsummary pandas tqdm
     conda install -c conda-forge opencv
 
 
