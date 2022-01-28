@@ -5,13 +5,16 @@ In the following the steps:
 3. For each detected object select the k nearest objects
 4. Run Encoder on the last k nearest objects and average the predictions.
 """
+import sys, os
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
 
 import argparse
 import torch
 import numpy as np
 import cv2
 import torchvision
-import os
 import time
 import torchvision.transforms.functional as F
 
@@ -23,7 +26,7 @@ from torchvision.transforms import transforms as transforms
 from utils.coco_names import COCO_INSTANCE_CATEGORY_NAMES as coco_names
 from Encoder.Models.DataExtractor import SquarePad
 from PIL import Image
-
+from tqdm import tqdm
 
 transform_enc = transforms.Compose([
     SquarePad(),
@@ -74,6 +77,10 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
                                                                             num_classes=91)
     # set the computation device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == 'cuda':
+        torch.cuda.set_device(0)
+    print('Using {}'.format(device))
+    
     # load the modle on to the computation device and set to eval mode
     segmentation_model.to(device).eval()
 
@@ -121,7 +128,8 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
     algo = SelectLastKFrames()
     csv_res = CsvResults()
     # loop through the videos
-    for ind in range(0, len(path_to_rgb_video)):
+    ind = 0
+    for _ in tqdm(range(0, len(path_to_rgb_video))):
         start_time = time.time()
         print(os.path.basename(path_to_rgb_video[ind]))
         video_cap = cv2.VideoCapture(path_to_rgb_video[ind])
@@ -252,6 +260,7 @@ def generate_data(path_to_video_dir, path_to_dpt_dir):
         elapsed_time = time.time() - start_time
         csv_res.fill_entry('Execution time', round(elapsed_time, 2))
         video_cap.release()
+        ind += 1
 
     csv_res.save_csv("Visual_priv_test.csv")
     cv2.destroyAllWindows()
