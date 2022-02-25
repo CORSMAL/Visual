@@ -3,7 +3,10 @@
 This repository contains the methodology proposed by Visual team in CORSMAL challenge.
 
 We propose a method to provide an estimation of the container mass (Task 4) exploiting RGB-D data coming from the view 3 (from the robot perspective), using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
- 
+<p align="center">
+<img src="images/proposal.png" width="750" height="480" />
+</p>
+
 A brief description of the method:
 1. For each video, every frame is sampled and the object detection and segmentation is performed using Mask R-CNN model pretrained on COCO.
 2. Leveraging the average distance, computed considering the depth map only in the pixels positions belonging to the segmentation mask, we select the 5 nearest objects (least average distance with respect to the camera of the chosen view). 
