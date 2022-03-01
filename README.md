@@ -2,7 +2,7 @@
 
 This repository contains the methodology proposed by Visual team in CORSMAL challenge.
 
-We propose a method to provide an estimation of the container mass (Task 4) exploiting RGB-D data coming from the view 3 (from the robot perspective), using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
+We propose a method to provide an estimation of the container mass (Task 4) exploiting RGB-D data coming from a fixed frontal view, using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
 <p align="center">
 <img src="images/proposal.png" width="750" height="480" />
 </p>
