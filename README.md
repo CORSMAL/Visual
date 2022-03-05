@@ -1,8 +1,8 @@
-# Corsmal Challenge - Team Visual 
+# Container Localisation and Mass Estimation with an RGB-D Camera
 
-This repository contains the methodology proposed by Visual team in CORSMAL challenge.
+This repository contains the methodology proposed by Visual team in CORSMAL challenge (Task 4).
 
-We propose a method to provide an estimation of the container mass (Task 4) exploiting RGB-D data coming from a fixed frontal view, using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
+We propose a method to provide an estimation of the empty container mass exploiting RGB-D data coming from a fixed frontal view, using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
 <p align="center">
 <img src="images/proposal.png" width="750" height="480" />
 </p>
@@ -11,6 +11,8 @@ A brief description of the method:
 1. For each video, every frame is sampled and the object detection and segmentation is performed using Mask R-CNN model pretrained on COCO.
 2. Leveraging the average distance, computed considering the depth map only in the pixels positions belonging to the segmentation mask, we select the 5 nearest objects (least average distance with respect to the camera of the chosen view). 
 3. The final prediction of the container mass is the average of the 5 predictions (one per each nearest detected object) performed by a lightweight CNN encoder model.
+
+[[arXiv](https://arxiv.org/abs/2203.01207)]
 
 ## Table of contents
 * [Installation](#installation)
