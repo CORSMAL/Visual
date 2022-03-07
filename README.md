@@ -1,8 +1,8 @@
 # Container Localisation and Mass Estimation with an RGB-D Camera
 
-This repository contains the methodology proposed by Visual team in [CORSMAL challenge](https://corsmal.eecs.qmul.ac.uk/challenge.html) (Task 4) and accepted at [ICASSP 2022 conference](https://2022.ieeeicassp.org/).
+This repository contains the method proposed by Visual team in [CORSMAL challenge](https://corsmal.eecs.qmul.ac.uk/challenge.html) (Task 4) and accepted at [ICASSP 2022 conference](https://2022.ieeeicassp.org/).
 
-We propose a method to provide an estimation of the empty container mass exploiting RGB-D data coming from a fixed frontal view, using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
+The estimation of the empty container mass exploits RGB-D data coming from a fixed frontal view, using a two-stage pipeline. The first stage employs a detection and segmentation network to locate the container. The second part uses a simple and lightweight encoder to provide the actual mass estimation. 
 <p align="center">
 <img src="images/proposal.png" width="750" height="480" />
 </p>
